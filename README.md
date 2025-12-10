@@ -105,15 +105,13 @@ The system **does NOT use movie subtitles**. Instead, it works from:
 ```bash
 cd Reimagine-movies
 
-# Create and activate a project environment
+uv init
 uv venv
 source .venv/bin/activate
 
-# Install in editable mode
-uv pip install -e .
+uv sync
 
-# Configure environment variables
-cp .env.example .env
+touch .env
 ```
 
 Edit `.env` and add your OpenAI API key:
