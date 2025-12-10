@@ -202,6 +202,11 @@ def main():
         "--preview",
         help="Preview a predefined story summary by name (no transformation)",
     )
+
+    parser.add_argument(
+        "--preview-file",
+        help="Preview a saved output file (e.g., output/*.md) rendered in console",
+    )
     
     parser.add_argument(
         "--example",
@@ -243,6 +248,24 @@ def main():
             return
         console.print(Panel.fit(f"[bold]Preview: {name}[/bold]", border_style="cyan"))
         console.print(Markdown(stories[name][:2000]))
+        return
+
+    if args.preview_file:
+        file_path = Path(args.preview_file)
+        if not file_path.exists():
+            console.print(f"[red]File not found:[/red] {file_path}")
+            return
+        try:
+            content = file_path.read_text(encoding="utf-8")
+        except Exception as e:
+            console.print(f"[red]Failed to read file:[/red] {e}")
+            return
+        console.print(Panel.fit(f"[bold]Preview File:[/bold] {file_path}", border_style="cyan"))
+        # Render as Markdown if it looks like Markdown, else plain text
+        if file_path.suffix.lower() in {".md", ".markdown"}:
+            console.print(Markdown(content))
+        else:
+            console.print(content)
         return
     
     if args.api:
