@@ -5,14 +5,15 @@
 ### 1. Install
 ```bash
 cd Reimagine-movies
-python -m venv .venv
+uv init
+uv venv
 source .venv/bin/activate
-pip install -e .
+uv sync
 ```
 
 ### 2. Configure
 ```bash
-cp .env.example .env
+touch .env
 ```
 
 Edit `.env` and add your OpenAI API key:
@@ -22,7 +23,7 @@ OPENAI_API_KEY=sk-your-actual-key-here
 
 ### 3. Run Example
 ```bash
-python main.py --example
+uv run main.py --example or uv run main.py --example
 ```
 
 This transforms Romeo and Juliet into a Silicon Valley AI rivalry story.
@@ -31,7 +32,7 @@ This transforms Romeo and Juliet into a Silicon Valley AI rivalry story.
 
 ### List Available Stories
 ```bash
-python main.py --list-stories
+uv run main.py --list-stories
 ```
 
 Output:
@@ -47,7 +48,7 @@ Available Stories:
 
 ### Transform a Story
 ```bash
-python main.py \
+uv run main.py \
   --story-name DRACULA \
   --target-world "Modern Silicon Valley where a mysterious investor drains startups" \
   --output dracula_vc.txt
@@ -55,7 +56,7 @@ python main.py \
 
 ### Custom Story
 ```bash
-python main.py \
+uv run main.py \
   --custom-story "Once upon a time, in a kingdom far away..." \
   --target-world "A cyberpunk megacity in 2099" \
   --maintain "underdog victory" "good vs evil" \
@@ -67,7 +68,7 @@ python main.py \
 
 ### Start Server
 ```bash
-python main.py --api
+uv run main.py --api
 ```
 
 Server runs at: `http://localhost:8000`
@@ -97,7 +98,7 @@ curl http://localhost:8000/knowledge-base/examples | jq
 
 ### Get Help
 ```bash
-python main.py --help
+uv run main.py --help
 ```
 
 ### View Story Details
@@ -114,7 +115,7 @@ curl http://localhost:8000/
 
 ### "ModuleNotFoundError: No module named 'openai'"
 ```bash
-pip install -e .
+uv sync
 ```
 
 ### "openai.APIError: Invalid API key"
@@ -124,7 +125,7 @@ Check your `.env` file has correct `OPENAI_API_KEY=sk-...`
 Run from project root directory:
 ```bash
 cd /path/to/Reimagine-movies
-python main.py --list-stories
+uv run main.py --list-stories
 ```
 
 ### Output files not found
