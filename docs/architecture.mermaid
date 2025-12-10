@@ -1,0 +1,23 @@
+graph TD
+    A[User Input] --> B[Transformation Orchestrator]
+    B --> C[Story Analysis Agent]
+    C --> D[World Builder Agent]
+    D --> E[Character Mapping Agent]
+    E --> F[Plot Transformation Agent]
+    F --> G[Story Writer Agent]
+    G --> H[Quality Assurance Agent]
+    H --> I[Final Result]
+    
+    C -.Knowledge Base.-> KB[(Knowledge Base)]
+    D -.Knowledge Base.-> KB
+    E -.Knowledge Base.-> KB
+    F -.Knowledge Base.-> KB
+    
+    style B fill:#f9f,stroke:#333,stroke-width:4px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#bbf,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+    style F fill:#bbf,stroke:#333,stroke-width:2px
+    style G fill:#bbf,stroke:#333,stroke-width:2px
+    style H fill:#bfb,stroke:#333,stroke-width:2px
+    style I fill:#fbb,stroke:#333,stroke-width:4px

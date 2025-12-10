@@ -1,0 +1,134 @@
+transformation_examples:
+  - original: "Romeo and Juliet"
+    target_world: "Rival AI research labs in Silicon Valley"
+    key_adaptations:
+      - "Feuding families → Competing tech companies (Montague AI vs Capulet Labs)"
+      - "Romeo → Rohan, a machine learning researcher"
+      - "Juliet → Julia, a neural networks engineer"
+      - "Poison → Malicious code that corrupts AI systems"
+      - "Verona's Prince → SEC regulator trying to control the industry"
+      - "The ball → Industry conference where they meet"
+      - "Secret marriage → Secret collaboration on breakthrough algorithm"
+      - "Banishment → Being fired and blacklisted from industry"
+      - "Family tomb → Server room / data center"
+    
+  - original: "Odyssey"
+    target_world: "Deep space exploration mission in 2247"
+    key_adaptations:
+      - "Odysseus → Commander Ulysses, starship captain"
+      - "Ithaca → Home station Ithaca-7"
+      - "Penelope → Station Commander Penelope, fending off corporate takeover"
+      - "Suitors → Corporate executives trying to claim the station"
+      - "Cyclops → Alien entity on hostile planet"
+      - "Sirens → AI consciousness that lures ships with false signals"
+      - "Scylla and Charybdis → Binary star system with extreme gravitational forces"
+      - "Poseidon's wrath → Vengeful alien species"
+      - "Journey home → Navigation through uncharted space sectors"
+
+  - original: "Dracula"
+    target_world: "Modern Silicon Valley startup culture"
+    key_adaptations:
+      - "Dracula → Dmitri Acula, charismatic vampire-like venture capitalist"
+      - "Castle Dracula → Exclusive investor compound in Transylvania-themed estate"
+      - "Jonathan Harker → John Harper, lawyer doing due diligence"
+      - "Blood-sucking → Extracting startup equity and IP rights"
+      - "Lucy → Lucy Chen, promising entrepreneur"
+      - "Mina → Mina Murray, tech journalist investigating Dmitri"
+      - "Van Helsing → Professor Van Helsing, veteran Silicon Valley watchdog"
+      - "Stakes and sunlight → SEC regulations and public disclosure"
+      - "Vampirism → Predatory investment practices that destroy companies"
+
+narrative_patterns:
+  heros_journey:
+    - "Ordinary World"
+    - "Call to Adventure"
+    - "Refusal of the Call"
+    - "Meeting the Mentor"
+    - "Crossing the Threshold"
+    - "Tests, Allies, and Enemies"
+    - "Approach to the Inmost Cave"
+    - "The Ordeal"
+    - "Reward"
+    - "The Road Back"
+    - "Resurrection"
+    - "Return with the Elixir"
+
+  three_act_structure:
+    act_one:
+      - "Setup and exposition"
+      - "Introduce protagonist and world"
+      - "Establish stakes"
+      - "Inciting incident"
+      - "First plot point (enters new world)"
+    
+    act_two:
+      - "Rising action"
+      - "Obstacles and complications"
+      - "Midpoint reversal"
+      - "Increasing pressure"
+      - "Lowest point / crisis"
+    
+    act_three:
+      - "Climax"
+      - "Confrontation with main conflict"
+      - "Resolution"
+      - "New equilibrium"
+      - "Denouement"
+
+character_archetypes:
+  hero:
+    function: "Protagonist who drives the action"
+    traits: ["courage", "determination", "growth capacity"]
+  
+  mentor:
+    function: "Guides and teaches the hero"
+    traits: ["wisdom", "experience", "supportive"]
+  
+  shadow:
+    function: "Antagonist or dark reflection of hero"
+    traits: ["opposition", "represents fears", "challenges hero"]
+  
+  ally:
+    function: "Supports hero on journey"
+    traits: ["loyal", "complementary skills", "friendship"]
+  
+  trickster:
+    function: "Brings chaos and change"
+    traits: ["unpredictable", "comic relief", "disrupts status quo"]
+  
+  shapeshifter:
+    function: "Creates doubt and suspense"
+    traits: ["ambiguous loyalty", "mysterious", "changes allegiance"]
+
+world_building_dimensions:
+  temporal:
+    - "Historical period"
+    - "Future era"
+    - "Alternate timeline"
+    - "Timeless/mythic"
+  
+  technological:
+    - "Stone age"
+    - "Medieval"
+    - "Industrial"
+    - "Modern"
+    - "Near future"
+    - "Far future"
+    - "Post-apocalyptic"
+  
+  social:
+    - "Monarchy"
+    - "Democracy"
+    - "Oligarchy"
+    - "Corporate-controlled"
+    - "Tribal"
+    - "Post-scarcity"
+  
+  genre:
+    - "Science fiction"
+    - "Fantasy"
+    - "Western"
+    - "Noir"
+    - "Cyberpunk"
+    - "Steampunk"
+    - "Space opera"
