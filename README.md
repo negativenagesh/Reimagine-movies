@@ -1,15 +1,24 @@
-# Story Transformation System
+<div align="center">
 
-AI-powered narrative transformation using multi-agent microservice architecture. Transform classic stories into completely different worlds while preserving their essence.
+# Reimagine Movies
 
-## 📚 Documentation
+[![GitHub Stars](https://img.shields.io/github/stars/negativenagesh/Reimagine-movies?style=flat-square)](https://github.com/negativenagesh/Reimagine-movies/stargazers)
+[![License](https://img.shields.io/github/license/negativenagesh/Reimagine-movies?style=flat-square)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.11%2B-blue?style=flat-square)](pyproject.toml)
+[![CI](https://img.shields.io/badge/CI-ready-success?style=flat-square)]()
 
-- **[Quick Start Guide](docs/QUICKSTART.md)** - Get running in 5 minutes
-- **[Project Summary](docs/PROJECT_SUMMARY.md)** - Executive overview
-- **[Complete Solution Design](docs/SOLUTION.md)** - Full technical documentation
-- **[Example Transformation](docs/EXAMPLE_TRANSFORMATION.md)** - Romeo & Juliet → AI Labs
-- **[System Diagrams](docs/SYSTEM_DIAGRAM.md)** - Visual architecture
-- **[File Listing](docs/FILE_LISTING.md)** - Complete project structure
+AI-powered narrative transformation using a multi-agent microservice architecture. Transform classic stories into new worlds while preserving their core essence.
+
+</div>
+
+## Documentation
+
+- **[Quick Start Guide](docs/QUICKSTART.md)** – Get running in minutes
+- **[Project Summary](docs/PROJECT_SUMMARY.md)** – Executive overview
+- **[Complete Solution Design](docs/SOLUTION.md)** – Full technical documentation
+- **[Example Transformation](docs/EXAMPLE_TRANSFORMATION.md)** – Romeo & Juliet → AI Labs
+- **[System Diagrams](docs/SYSTEM_DIAGRAM.md)** – Visual architecture
+- **[File Listing](docs/FILE_LISTING.md)** – Complete project structure
 
 ## Overview
 
@@ -89,17 +98,21 @@ The system **does NOT use movie subtitles**. Instead, it works from:
 ### Prerequisites
 - Python 3.11+
 - OpenAI API key
+- `uv` Python package manager (fast environment + installs)
 
-### Setup
+### Setup (using uv)
 
 ```bash
 cd Reimagine-movies
 
-python -m venv .venv
+# Create and activate a project environment
+uv venv
 source .venv/bin/activate
 
-pip install -e .
+# Install in editable mode
+uv pip install -e .
 
+# Configure environment variables
 cp .env.example .env
 ```
 
@@ -114,14 +127,14 @@ OPENAI_API_KEY=sk-your-key-here
 
 #### Run Example Transformation
 ```bash
-python main.py --example
+uv run main.py --example
 ```
 
-Transforms Romeo and Juliet into Silicon Valley AI labs rivalry.
+Transforms Romeo and Juliet into a Silicon Valley AI labs rivalry.
 
 #### Transform a Predefined Story
 ```bash
-python main.py \
+uv run main.py \
   --story-name DRACULA \
   --target-world "Modern cybersecurity landscape where a mysterious hacker collective drains companies" \
   --output dracula_cyber.txt
@@ -129,12 +142,12 @@ python main.py \
 
 #### List Available Stories
 ```bash
-python main.py --list-stories
+uv run main.py --list-stories
 ```
 
 #### Custom Story Transformation
 ```bash
-python main.py \
+uv run main.py \
   --custom-story "Your story text here..." \
   --target-world "Description of target world" \
   --maintain "element1" "element2" \
@@ -146,7 +159,7 @@ python main.py \
 
 Start the FastAPI server:
 ```bash
-python main.py --api
+uv run main.py --api
 ```
 
 Access at `http://localhost:8000`
@@ -213,6 +226,52 @@ Each agent is independent and communicates through message passing. This allows:
 - Easy addition of new agent types
 - Clear separation of concerns
 
+### Agent Roles, I/O, and Communication
+
+The system coordinates six specialized agents via the `TransformationOrchestrator`. Each agent exposes a `process(payload)` method and returns structured JSON conforming to Pydantic models in `src/models/domain.py`. The orchestrator passes outputs downstream, ensuring type-safe handoffs.
+
+- Story Analysis Agent (`src/agents/story_analysis_agent.py`)
+   - Role: Extracts story semantics — title, core theme, moral, emotional journey, character archetypes, narrative structure, and plot points.
+   - Input: `{ source_story: string }`
+   - Output: `{ analysis: StoryAnalysis }`
+   - Downstream: Feeds `analysis` to World Builder and later to Story Writer and QA.
+
+- World Builder Agent (`src/agents/world_builder_agent.py`)
+   - Role: Constructs an alternate world with consistent rules, tech level, social structure, norms, constraints, and power dynamics.
+   - Input: `{ target_world_description: string, original_analysis: StoryAnalysis }`
+   - Output: `{ world: World }`
+   - Downstream: Provides `world` to Character Mapping, Plot Transformation, and Story Writer.
+
+- Character Mapping Agent (`src/agents/character_mapping_agent.py`)
+   - Role: Translates original characters to the new world while preserving archetypes, core traits, motivations, and relationships.
+   - Input: `{ original_characters: Character[], world: World }`
+   - Output: `{ transformed_characters: Character[] }`
+   - Downstream: Supplies `transformed_characters` to Plot Transformation and Story Writer.
+
+- Plot Transformation Agent (`src/agents/plot_transformation_agent.py`)
+   - Role: Reimagines plot points to fit the new world, preserving sequence, stakes, emotional weight, and narrative function.
+   - Input: `{ plot_points: PlotPoint[], world: World, transformed_characters: Character[] }`
+   - Output: `{ transformed_plot: PlotPoint[] }`
+   - Downstream: Provides `transformed_plot` to the Story Writer.
+
+- Story Writer Agent (`src/agents/story_writer_agent.py`)
+   - Role: Synthesizes world, characters, and plot into a full-length narrative targeting 9,000–14,000 tokens.
+   - Input: `{ world: World, characters: Character[], plot: PlotPoint[], original_analysis: StoryAnalysis }`
+   - Output: `{ story: string }`
+   - Downstream: Supplies `story` to QA and final result composition.
+
+- Quality Assurance Agent (`src/agents/qa_agent.py`)
+   - Role: Evaluates thematic fidelity, character consistency, and world coherence; produces notes and a quantitative score.
+   - Input: `{ original_analysis: StoryAnalysis, world: World, characters: Character[], plot: PlotPoint[], story: string }`
+   - Output: `{ evaluation: { overall_score: number, transformation_notes: Dict, ... } }`
+   - Downstream: Combined into the `TransformationResult` for display and serialization.
+
+### Orchestrator Flow and Message Passing
+- The `TransformationOrchestrator` (`src/orchestrator.py`) invokes agents in sequence, prints their outputs, and computes token/word counts.
+- All inter-agent communications are via structured dict payloads, validated against Pydantic models at result assembly.
+- The orchestrator reports warnings when story length is outside the 9k–14k token target and surfaces QA notes.
+- CLI and API consume the orchestrator, and `main.py` handles saving results to text or Markdown with computed metadata.
+
 ### Multi-Agent Approach
 Different agents with different temperatures optimize for different goals:
 - Analysis agents (low temp) → precise extraction
@@ -236,44 +295,44 @@ Our approach uses plot summaries that capture these essential elements.
 
 ## Evaluation Criteria Addressed
 
-### ✅ System Thinking
+### System Thinking
 - Abstracted transformation into reusable agent pipeline
 - Each agent handles one concern
 - Orchestrator manages coordination
 - Knowledge base provides reusable patterns
 
-### ✅ Technical Execution
+### Technical Execution
 - Clean, modular code
 - Type-safe with Pydantic models
 - Scalable microservice architecture
 - RESTful API design
 
-### ✅ AI Engineering
+### AI Engineering
 - Temperature tuning per agent role
 - Structured output with JSON schema
 - Few-shot examples in knowledge base
 - Chain-of-thought through pipeline
 
-### ✅ Problem Decomposition
+### Problem Decomposition
 - 6 specialized agents
 - Clear interfaces between components
 - Separation of analysis, generation, validation
 - Reusable knowledge base
 
-### ✅ Bias Toward Action
+### Bias Toward Action
 - Working demo with example
 - Multiple interfaces (CLI, API)
 - Predefined stories for quick testing
 - Complete end-to-end system
 
-### ✅ Ownership & Innovation
+### Ownership & Innovation
 **Clever addition**: Quality Assurance Agent that:
 - Validates thematic fidelity automatically
 - Provides quantitative consistency scores
 - Identifies strengths and weaknesses
 - Enables iterative refinement
 
-This wasn't in the requirements but adds:
+This addition wasn't in the original requirements but adds:
 - Objective quality measurement
 - Debugging capability
 - Trust in transformations
@@ -346,7 +405,7 @@ This wasn't in the requirements but adds:
 
 ## License
 
-MIT
+This project is licensed under the MIT License. See the `LICENSE` file for details.
 
 ## Contact
 
