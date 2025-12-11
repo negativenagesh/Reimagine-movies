@@ -6,23 +6,9 @@
 [![License](https://img.shields.io/github/license/negativenagesh/Reimagine-movies?style=flat-square)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-blue?style=flat-square)](pyproject.toml)
 [![CI](https://img.shields.io/badge/CI-ready-success?style=flat-square)]()
-
-AI-powered narrative transformation using a multi-agent microservice architecture. Transform classic stories into new worlds while preserving their core essence.
-
 </div>
 
-## Documentation
-
-- **[Quick Start Guide](docs/QUICKSTART.md)** – Get running in minutes
-- **[Project Summary](docs/PROJECT_SUMMARY.md)** – Executive overview
-- **[Complete Solution Design](docs/SOLUTION.md)** – Full technical documentation
-- **[Example Transformation](docs/EXAMPLE_TRANSFORMATION.md)** – Romeo & Juliet → AI Labs
-- **[System Diagrams](docs/SYSTEM_DIAGRAM.md)** – Visual architecture
-- **[File Listing](docs/FILE_LISTING.md)** – Complete project structure
-
-## Overview
-
-This system uses specialized AI agents to systematically transform narratives across contexts. Each agent handles a specific aspect of the transformation process, working together through a central orchestrator.
+AI-powered narrative transformation using a multi-agent microservice architecture. Transform classic stories into new worlds while preserving their core essence. This system uses specialized multi-agents to systematically transform narratives across contexts. Each agent handles a specific aspect of the transformation process, working together through a central orchestrator.
 
 ### System Architecture
 
@@ -512,7 +498,7 @@ This addition wasn't in the original requirements but adds:
 
 ## License
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+This project is licensed under the Apache License. See the `LICENSE` file for details.
 
 ## Contact
 
