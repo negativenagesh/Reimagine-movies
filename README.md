@@ -105,15 +105,13 @@ The system **does NOT use movie subtitles**. Instead, it works from:
 ```bash
 cd Reimagine-movies
 
-# Create and activate a project environment
+uv init
 uv venv
 source .venv/bin/activate
 
-# Install in editable mode
-uv pip install -e .
+uv sync
 
-# Configure environment variables
-cp .env.example .env
+touch .env
 ```
 
 Edit `.env` and add your OpenAI API key:
@@ -124,11 +122,7 @@ OPENAI_API_KEY=sk-your-key-here
 ## Usage
 
 ### Command Line Interface
-
 #### Run Example Transformation
-```bash
-uv run main.py --example
-```
 
 Transforms Romeo and Juliet into a Silicon Valley AI labs rivalry.
 
@@ -144,9 +138,6 @@ uv run main.py \
 ```bash
 uv run main.py --list-stories
 ```
-
-#### Custom Story Transformation
-```bash
 uv run main.py \
   --custom-story "Your story text here..." \
   --target-world "Description of target world" \
@@ -154,6 +145,121 @@ uv run main.py \
   --constraints "no magic" "realistic tech" \
   --output my_transformation.txt
 ```
+
+#### OMDb Movie Reimagining
+Search OMDb by title, confirm a selection (GPT-suggested index), choose a genre from a curated list, then automatically reimagine the selected movie using its full plot as the source.
+
+```bash
+# Pick a movie by title, then describe the target world interactively
+uv run main.py --movie-title "Sholay"
+
+# Or provide the target world up-front and an output file
+uv run main.py --movie-title "Sholay" \
+   --target-world "Neo-Noir Mumbai in 2040 with AI-enhanced policing and syndicates" \
+   --output sholay_neo_noir.md
+```
+
+Requirements:
+- Ensure `OMDB_API_KEY` is set in `.env`. Example:
+   - `OMDB_API_KEY=11b915c8`
+- The tool queries `http://www.omdbapi.com/?apikey=[yourkey]&...` (title search `s`, details `i` with `plot=full`).
+- The movie's full plot becomes the `source_story` for the same multi-agent pipeline used for predefined stories.
+- You will be prompted to select a genre (Action, Adventure, Comedy, Drama, Horror, Romance, Science Fiction, Fantasy, Thriller, Western, Musical, Mystery, Crime, Animation, Sports). The pipeline uses this to guide tone and conventions.
+
+#### GPT-Based Movie Reimagining (Alternate)
+Use GPT-4o-mini to disambiguate a title and generate a deep plot summary when OMDb lacks data or as an alternate path.
+
+```bash
+# Interactive: candidates suggested, pick one, choose genre, describe world
+uv run main.py --movie-title-gpt "Sholay"
+
+# Provide world and output explicitly
+uv run main.py --movie-title-gpt "Sholay" \
+   --target-world "Neo-Noir Mumbai in 2040 with AI-enhanced policing and syndicates" \
+   --output sholay_neo_noir_gpt.md
+```
+
+Notes:
+- The LLM proposes candidate movies (title/year) for disambiguation; you select the best match.
+- It then produces an in-depth plot summary used as `source_story` for the same pipeline.
+- Genre selection is applied to `creative_constraints`.
+
+#### Web Search Movie Reimagining (GPT-5-mini)
+Use GPT-5-mini with the web search tool to disambiguate titles and generate an in-depth summary from current web data.
+
+```bash
+# Interactive: candidates via web search, pick one, choose genre, describe world
+uv run main.py --movie-title-web "Dhurandhar"
+
+# Provide world and output explicitly
+uv run main.py --movie-title-web "Dhurandhar" \
+   --target-world "Contemporary Mumbai under pervasive surveillance and gig-economy power brokers" \
+   --output dhurandhar_contemporary_web.md
+```
+
+Notes:
+- Uses `gpt-5-mini-2025-08-07` with `web_search` tools to gather recent information.
+- Returns candidates in JSON, then produces a markdown deep summary used as `source_story`.
+- Genre selection is applied to `creative_constraints`.
+
+#### Perplexity MCP Movie Reimagining
+Use Perplexity MCP (via Composio) to get top-10 disambiguation results with selection guidance, fetch complete movie details (including plot), then reimagine.
+
+```bash
+# Interactive: Perplexity returns top-10 candidates with advice; pick one
+uv run main.py --movie-title-perplexity "KGF"
+
+# Provide world and output explicitly
+uv run main.py --movie-title-perplexity "KGF" \
+    --target-world "Neo-Noir Mumbai in 2040 with AI-enhanced policing and syndicates" \
+    --output kgf_neo_noir_perplexity.md
+```
+
+Notes:
+- Requires `.env` entries:
+   - `PERPLEXITY_SERVER_NAME=perplexity`
+   - `PERPLEXITY_BASE_URL=...` (Composio MCP endpoint)
+   - `PERPLEXITY_API_KEY=...`
+   - `PERPLEXITY_MCP_ID=...`
+   - `PERPLEXITY_USER_ID=...`
+- The CLI displays the top-10 candidates and any MCP-provided selection advice to help choose between identical names or remakes.
+- After selection, the CLI prints the full movie details JSON (title, year, region, alt titles, plot, cast, metadata where available).
+- If a full plot is missing, it requests an in-depth markdown summary (2000+ words) and uses that as `source_story`.
+- Genre selection is applied to `creative_constraints`; the pipeline and saving behavior mirror other flows.
+
+### Running with Predefined Stories
+Use entries from `data/source_stories.yaml`.
+
+```bash
+# List stories
+uv run main.py --list-stories
+
+# Transform a predefined story
+uv run main.py \
+   --story-name ROMEO_AND_JULIET \
+   --target-world "Silicon Valley AI labs rivalry in 2024" \
+   --maintain "star-crossed love" "tragic miscommunication" \
+   --constraints "grounded tech" \
+   --output romeo_juliet_ai_labs.md
+
+# Preview a story summary without transformation
+uv run main.py --preview ROMEO_AND_JULIET
+```
+
+### Preview Saved Outputs
+Render a previously saved file in the console.
+
+```bash
+uv run main.py --preview-file output/romeo_juliet_ai_labs.md
+```
+
+## Changes Made
+- OMDb integration now feeds directly into the transformation pipeline. After you select a movie, its full plot is used as `source_story`, the orchestrator runs, and the output is saved.
+- Genre selection added before reimagining. You choose from a curated list; the chosen genre is applied to `creative_constraints` to guide tone, pacing, and conventions.
+- Output saving improved. If `--output` is not specified, files are auto-named like `output/reimagined_<title>.md`. Markdown headers include computed length and consistency score.
+- Console preview support. Use `--preview-file` to render Markdown or text outputs; `--preview` shows predefined story summaries.
+- README updated for `uv` workflows, agent roles, and OMDb usage.
+- Perplexity MCP flow added. Top-5 candidate disambiguation with advice, full details printing, and deep summary fallback integrated into the reimagining pipeline.
 
 ### API Server
 
@@ -329,6 +435,7 @@ Our approach uses plot summaries that capture these essential elements.
 **Clever addition**: Quality Assurance Agent that:
 - Validates thematic fidelity automatically
 - Provides quantitative consistency scores
+CLI now prints a concise QA summary after each transformation (Overall, Thematic Fidelity, Character Consistency, World Coherence) with robust defaults.
 - Identifies strengths and weaknesses
 - Enables iterative refinement
 
