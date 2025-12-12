@@ -232,30 +232,23 @@ Notes:
 - Returns candidates in JSON, then produces a markdown deep summary used as `source_story`.
 - Genre selection is applied to `creative_constraints`.
 
-#### Perplexity MCP Movie Reimagining
-Use Perplexity MCP (via Composio) to get top-10 disambiguation results with selection guidance, fetch complete movie details (including plot), then reimagine.
+#### Getting Your OMDb API Key
 
-```bash
-# Interactive: Perplexity returns top-10 candidates with advice; pick one
-uv run main.py --movie-title-perplexity "KGF"
+The OMDb (Open Movie Database) API provides access to movie data. To use the `--movie-title` flow:
 
-# Provide world and output explicitly
-uv run main.py --movie-title-perplexity "KGF" \
-    --target-world "Neo-Noir Mumbai in 2040 with AI-enhanced policing and syndicates" \
-    --output kgf_neo_noir_perplexity.md
+1. **Get Free API Key**: Visit [http://www.omdbapi.com/apikey.aspx](http://www.omdbapi.com/apikey.aspx)
+2. **Choose Plan**: Select the free tier (1,000 daily requests)
+3. **Verify Email**: Check your email and click the activation link
+4. **Add to .env**: Copy your API key to `.env` file:
+   ```
+   OMDB_API_KEY=your_key_here
+   ```
+
+**Example .env file:**
 ```
-
-Notes:
-- Requires `.env` entries:
-   - `PERPLEXITY_SERVER_NAME=perplexity`
-   - `PERPLEXITY_BASE_URL=...` (Composio MCP endpoint)
-   - `PERPLEXITY_API_KEY=...`
-   - `PERPLEXITY_MCP_ID=...`
-   - `PERPLEXITY_USER_ID=...`
-- The CLI displays the top-10 candidates and any MCP-provided selection advice to help choose between identical names or remakes.
-- After selection, the CLI prints the full movie details JSON (title, year, region, alt titles, plot, cast, metadata where available).
-- If a full plot is missing, it requests an in-depth markdown summary (2000+ words) and uses that as `source_story`.
-- Genre selection is applied to `creative_constraints`; the pipeline and saving behavior mirror other flows.
+OPENAI_API_KEY=sk-your-openai-key-here
+OMDB_API_KEY=11b915c8
+```
 
 ### Running with Predefined Stories
 Use entries from `data/source_stories.yaml`.
@@ -351,19 +344,6 @@ uv run main.py --movie-title-web "Interstellar" \
    --output interstellar_mauryan.md
 ```
 
-#### Perplexity MCP Flow with Ancient India Worlds
-```bash
-# Transform "Avatar" into Ajanta-Ellora Era
-uv run main.py --movie-title-perplexity "Avatar" \
-   --target-world "Ajanta-Ellora Era with cave monastery communities defending sacred lands, trade caravans threatening ancient rock-cut architecture sites" \
-   --output avatar_ajanta.md
-
-# Transform "Gladiator" into Magadha Republic
-uv run main.py --movie-title-perplexity "Gladiator" \
-   --target-world "Magadha Republic with philosophical debate arenas replacing combat, merchant guilds manipulating early democratic institutions, warrior seeking justice through discourse" \
-   --output gladiator_magadha.md
-```
-
 #### Predefined Stories with Ancient India Worlds
 ```bash
 # Transform Romeo & Juliet into Pallava Dynasty
@@ -393,8 +373,8 @@ uv run main.py \
 - Genre selection added before reimagining. You choose from a curated list; the chosen genre is applied to `creative_constraints` to guide tone, pacing, and conventions.
 - Output saving improved. If `--output` is not specified, files are auto-named like `output/reimagined_<title>.md`. Markdown headers include computed length and consistency score.
 - Console preview support. Use `--preview-file` to render Markdown or text outputs; `--preview` shows predefined story summaries.
-- README updated for `uv` workflows, agent roles, and OMDb usage.
-- Perplexity MCP flow added. Top-5 candidate disambiguation with advice, full details printing, and deep summary fallback integrated into the reimagining pipeline.
+- README updated for `uv` workflows, agent roles, and OMDb API key setup instructions.
+- Multiple movie lookup flows available: OMDb (fast, reliable), GPT-based (deep summaries), and Web Search (current data).
 
 ### API Server
 
