@@ -10,34 +10,78 @@
 
 AI-powered narrative transformation using a multi-agent microservice architecture. Transform classic stories into new worlds while preserving their core essence. This system uses specialized multi-agents to systematically transform narratives across contexts. Each agent handles a specific aspect of the transformation process, working together through a central orchestrator.
 
+<div align="center">
+
 ### System Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                  Transformation Orchestrator                │
-└─────────────────────────────────────────────────────────────┘
-                           │
-           ┌───────────────┼───────────────┐
-           ▼               ▼               ▼
-    ┌──────────┐    ┌──────────┐    ┌──────────┐
-    │  Story   │───▶│  World   │───▶│Character │
-    │ Analysis │    │ Builder  │    │ Mapping  │
-    └──────────┘    └──────────┘    └──────────┘
-           │               │               │
-           └───────────────┼───────────────┘
-                           ▼
-                    ┌──────────┐
-                    │   Plot   │
-                    │Transform │
-                    └──────────┘
-                           │
-           ┌───────────────┼───────────────┐
-           ▼               ▼               ▼
-    ┌──────────┐    ┌──────────┐    ┌──────────┐
-    │  Story   │    │ Quality  │    │  Final   │
-    │  Writer  │───▶│Assurance │───▶│  Result  │
-    └──────────┘    └──────────┘    └──────────┘
+                    ┌──────────────────────────────────────────────────────────────┐
+                    │          TRANSFORMATION ORCHESTRATOR                         │
+                    │   (Coordinates agent pipeline, validates outputs,            │
+                    │    computes metrics, passes structured data)                 │
+                    └──────────────────────────────────────────────────────────────┘
+                                            │
+                                            │ Source Story
+                                            ▼
+                    ┌──────────────────────────────────────────────────────────────┐
+                    │         1. STORY ANALYSIS AGENT (temp=0.3)                   │
+                    │   Extracts: themes, archetypes, plot structure,              │
+                    │   emotional beats, narrative patterns (Hero's Journey)       │
+                    └──────────────────────────────────────────────────────────────┘
+                                            │
+                                            │ StoryAnalysis
+                                            ▼
+                    ┌──────────────────────────────────────────────────────────────┐
+                    │         2. WORLD BUILDER AGENT (temp=0.8)                    │
+                    │   Creates: alternate world with rules, tech level,           │
+                    │   social structures, norms, power dynamics                   │
+                    └──────────────────────────────────────────────────────────────┘
+                                            │
+                                            │ World + StoryAnalysis
+                                            ▼
+                    ┌──────────────────────────────────────────────────────────────┐
+                    │         3. CHARACTER MAPPING AGENT (temp=0.6)                │
+                    │   Transforms: characters preserving archetypes,              │
+                    │   core traits, motivations, relationship dynamics            │
+                    └──────────────────────────────────────────────────────────────┘
+                                            │
+                                            │ Characters + World
+                                            ▼
+                    ┌──────────────────────────────────────────────────────────────┐
+                    │         4. PLOT TRANSFORMATION AGENT (temp=0.7)              │
+                    │   Reimagines: plot points for new world,                     │
+                    │   preserves narrative function, emotional weight, causality  │
+                    └──────────────────────────────────────────────────────────────┘
+                                            │
+                                            │ Plot + Characters + World
+                                            ▼
+                    ┌──────────────────────────────────────────────────────────────┐
+                    │         5. STORY WRITER AGENT (temp=0.85)                    │
+                    │   Synthesizes: full narrative (9k-14k tokens)                │
+                    │   with vivid prose, world-appropriate tone                   │
+                    └──────────────────────────────────────────────────────────────┘
+                                            │
+                                            │ Full Story + All Context
+                                            ▼
+                    ┌──────────────────────────────────────────────────────────────┐
+                    │         6. QUALITY ASSURANCE AGENT (temp=0.2)                │
+                    │   Validates: thematic fidelity, character consistency,       │
+                    │   world coherence, scores transformation quality             │
+                    └──────────────────────────────────────────────────────────────┘
+                                            │
+                                            │ TransformationResult
+                                            ▼
+                    ┌──────────────────────────────────────────────────────────────┐
+                    │              FINAL OUTPUT (Markdown/Text)                    │
+                    │   Complete reimagined story with QA metrics                  │
+                    │   (consistency score, transformation notes)                  │
+                    └──────────────────────────────────────────────────────────────┘
+
+        Data Flow: Pydantic models ensure type-safe handoffs between agents
+        Temperature Tuning: Low (precise) → High (creative) → Low (validation)
 ```
+
+</div>
 
 ## How It Works
 
@@ -238,6 +282,111 @@ Render a previously saved file in the console.
 ```bash
 uv run main.py --preview-file output/romeo_juliet_ai_labs.md
 ```
+
+## Ancient India Target Worlds
+
+Transform movies into richly detailed Ancient India-inspired settings. Each world offers unique cultural, technological, and social dynamics perfect for narrative reimagining.
+
+### Available Worlds
+
+1. **Vedic Era** - Bronze Age Saraswati valley with ritual specialists and nomadic tribes
+2. **Mauryan Empire** - Imperial administration, Buddhist monasteries, Arthashastra politics
+3. **Gupta Golden Age** - Scientific academies, university towns, artistic renaissance
+4. **Chola Naval Empire** - Maritime trade, temple-states, bronze craftsmen
+5. **Vijayanagara Kingdom** - Fortified cities, bazaar economy, warrior culture
+6. **Sangam Tamil Nadu** - Bardic traditions, three crowned kings, literary assemblies
+7. **Indus Valley Civilization** - Urban planning, trade networks, undeciphered script
+8. **Magadha Republic** - Philosophical debates, merchant guilds, early democracy
+9. **Kashmir Shaivism** - Mountain monasteries, tantric philosophy, scholar-ascetics
+10. **Ajanta-Ellora Era** - Cave monasteries, trade caravans, rock-cut architecture
+11. **Pallava Dynasty** - Shore temples, Dravidian architecture, Sanskrit revival
+12. **Harsha's Empire** - Buddhist councils, diplomatic missions, cultural synthesis
+13. **Rashtrakuta Dynasty** - Multilingual courts, Jain merchants, agrarian prosperity
+14. **Chalukya Kingdoms** - Temple patronage, irrigation systems, feudal administration
+15. **Ancient Kerala** - Spice trade, Ayurvedic medicine, matrilineal society
+
+### Example Transformations
+
+#### OMDb Flow with Ancient India Worlds
+```bash
+# Transform "The Godfather" into Chola Naval Empire
+uv run main.py --movie-title "The Godfather" \
+   --target-world "Chola Naval Empire with maritime trade rivalries, temple-states controlling commerce, and bronze craftsmen guilds vying for royal patronage" \
+   --output godfather_chola.md
+
+# Transform "Matrix" into Kashmir Shaivism setting
+uv run main.py --movie-title "The Matrix" \
+   --target-world "Kashmir Shaivism era with mountain monasteries preserving secret tantric knowledge, scholar-ascetics discovering reality's illusory nature" \
+   --output matrix_kashmir.md
+
+# Transform "Sholay" into Vijayanagara Kingdom
+uv run main.py --movie-title "Sholay" \
+   --target-world "Vijayanagara Kingdom with fortified cities, bazaar economy power struggles, and warrior culture defending against northern sultanates" \
+   --output sholay_vijayanagara.md
+```
+
+#### GPT Flow with Ancient India Worlds
+```bash
+# Transform "Inception" into Gupta Golden Age
+uv run main.py --movie-title-gpt "Inception" \
+   --target-world "Gupta Golden Age scientific academies exploring consciousness, university towns debating philosophy of dreams and Maya" \
+   --output inception_gupta.md
+
+# Transform "Dune" into Indus Valley Civilization
+uv run main.py --movie-title-gpt "Dune" \
+   --target-world "Indus Valley Civilization with urban planning conflicts, trade network wars over precious resources, scholars attempting to decipher ancient script prophecies" \
+   --output dune_indus.md
+```
+
+#### Web Search Flow with Ancient India Worlds
+```bash
+# Transform recent Indian film into Sangam Tamil Nadu
+uv run main.py --movie-title-web "KGF" \
+   --target-world "Sangam Tamil Nadu with bardic traditions, three crowned kings competing for dominance, literary assemblies judging warrior deeds" \
+   --output kgf_sangam.md
+
+# Transform "Interstellar" into Mauryan Empire
+uv run main.py --movie-title-web "Interstellar" \
+   --target-world "Mauryan Empire Buddhist monasteries preserving knowledge during famine, Arthashastra politics determining resource allocation, father-daughter bond across imperial distances" \
+   --output interstellar_mauryan.md
+```
+
+#### Perplexity MCP Flow with Ancient India Worlds
+```bash
+# Transform "Avatar" into Ajanta-Ellora Era
+uv run main.py --movie-title-perplexity "Avatar" \
+   --target-world "Ajanta-Ellora Era with cave monastery communities defending sacred lands, trade caravans threatening ancient rock-cut architecture sites" \
+   --output avatar_ajanta.md
+
+# Transform "Gladiator" into Magadha Republic
+uv run main.py --movie-title-perplexity "Gladiator" \
+   --target-world "Magadha Republic with philosophical debate arenas replacing combat, merchant guilds manipulating early democratic institutions, warrior seeking justice through discourse" \
+   --output gladiator_magadha.md
+```
+
+#### Predefined Stories with Ancient India Worlds
+```bash
+# Transform Romeo & Juliet into Pallava Dynasty
+uv run main.py \
+   --story-name ROMEO_AND_JULIET \
+   --target-world "Pallava Dynasty with feuding temple architect families, star-crossed lovers from rival Dravidian architecture schools, Sanskrit revival dividing communities" \
+   --output romeo_juliet_pallava.md
+
+# Transform Dracula into Ancient Kerala
+uv run main.py \
+   --story-name DRACULA \
+   --target-world "Ancient Kerala spice trade networks concealing a merchant who drains rivals' wealth through Ayurvedic poisons, matrilineal society protecting ancient secrets" \
+   --output dracula_kerala.md
+```
+
+### Tips for Ancient India Transformations
+
+- **Technology Level**: Match the world's technology constraints (bronze/iron age, monsoon-dependent agriculture, trade routes)
+- **Social Structure**: Leverage caste systems, guild dynamics, monastic orders, royal courts, or matrilineal families
+- **Power Dynamics**: Use temple patronage, trade monopolies, philosophical authority, military prowess, or religious legitimacy
+- **Cultural Elements**: Incorporate bardic traditions, Sanskrit/Tamil/Prakrit languages, ritual practices, artistic schools
+- **Maintain Elements**: Preserve core emotional arcs while adapting conflicts to fit ancient political/economic systems
+- **Creative Constraints**: Ground technology in historical realism, avoid anachronisms, respect cultural authenticity
 
 ## Changes Made
 - OMDb integration now feeds directly into the transformation pipeline. After you select a movie, its full plot is used as `source_story`, the orchestrator runs, and the output is saved.
