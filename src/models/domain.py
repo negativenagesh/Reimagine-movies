@@ -1,5 +1,5 @@
-from pydantic import BaseModel, Field
-from typing import List, Dict, Optional, Literal
+from pydantic import BaseModel, Field, field_validator
+from typing import List, Dict, Optional, Literal, Any
 from enum import Enum
 
 
@@ -40,6 +40,23 @@ class Character(BaseModel):
     arc_description: str
     transformed_name: Optional[str] = None
     transformed_role: Optional[str] = None
+    
+    @field_validator('relationships', mode='before')
+    @classmethod
+    def normalize_relationships(cls, v: Any) -> Dict[str, str]:
+        """Normalize relationship values from lists to comma-separated strings."""
+        if not isinstance(v, dict):
+            return v
+        
+        normalized = {}
+        for key, value in v.items():
+            if isinstance(value, list):
+                # Convert list to comma-separated string
+                normalized[key] = ', '.join(str(item) for item in value if item)
+            else:
+                normalized[key] = str(value) if value else ""
+        
+        return normalized
 
 
 class World(BaseModel):
