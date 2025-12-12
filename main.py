@@ -410,7 +410,7 @@ def main():
             )
 
             console.print(Panel.fit(
-                f"[bold cyan]Reimagining Movie[/bold cyan]\n{full_data.get('Title')} ({full_data.get('Year')}) → Target World\nGenre: {selected_genre}",
+                f"[bold cyan]Reimagining Movie[/bold cyan]\n{full_data.get('Title')} ({full_data.get('Year')}) → {target_world}\nGenre: {selected_genre}",
                 border_style="cyan"
             ))
 
@@ -483,12 +483,13 @@ def main():
             sel_idx = 1
         chosen = candidates[sel_idx - 1]
 
-        
-        # Attempt to generate a detailed plot summary with retries and stronger instructions
-        deep_plot = ""
         title_str = chosen.get("title") or query_title
         year_val = chosen.get("year")
         year_str = str(year_val) if year_val else ""
+
+        # After user selects, make a GPT call to fetch comprehensive movie details
+        console.print(f"\n[cyan]Fetching detailed movie information for {title_str}...[/cyan]")
+        deep_plot = ""
         base_prompt = (
             f"Create an in-depth plot summary suitable for reimagining of the movie '{title_str}" +
             (f" ({year_str})" if year_str else "") +
@@ -499,7 +500,9 @@ def main():
             deep_plot = deep_summarizer.call_llm_text(base_prompt, max_tokens=5500)
         except Exception:
             deep_plot = ""
+        
         if not deep_plot or len(deep_plot.strip()) < 200:
+            console.print("[yellow]First attempt returned short content; trying alternate prompt...[/yellow]")
             try:
                 alt_prompt = (
                     f"Provide a thorough narrative synopsis for '{title_str}" +
@@ -510,9 +513,41 @@ def main():
                 deep_plot = deep_summarizer.call_llm_text(alt_prompt, max_tokens=5500)
             except Exception:
                 deep_plot = deep_plot or ""
+        
         if not deep_plot or len(deep_plot.strip()) < 200:
-            console.print("[yellow]LLM returned a short summary; proceeding with available content.[/yellow]")
-            deep_plot = deep_plot or f"Detailed plot summary for {title_str}."
+            console.print("[yellow]Could not retrieve detailed information; trying one more time with expanded query...[/yellow]")
+            try:
+                final_prompt = (
+                    f"Research and provide a comprehensive plot summary for the movie '{title_str}" +
+                    (f" ({year_str})" if year_str else "") +
+                    "'. Include all available information about: story synopsis, main characters and their arcs, "
+                    "key plot points, themes, setting details, and any notable production information. "
+                    "If this is a recent or regional film, provide whatever details are available."
+                )
+                deep_plot = deep_summarizer.call_llm_text(final_prompt, max_tokens=5500)
+            except Exception:
+                pass
+        
+        if not deep_plot or len(deep_plot.strip()) < 200:
+            console.print("[red]Unable to retrieve detailed movie information. The movie may be too recent or not widely documented.[/red]")
+            console.print("[yellow]Proceeding with limited information...[/yellow]")
+            deep_plot = deep_plot or f"Limited information available for {title_str}. This appears to be a recent or regional release."
+
+        # Display the deep summary details before proceeding
+        try:
+            header_title = (chosen.get('title') or query_title) or title_str
+            display_year = year_str
+            console.print(Panel.fit(
+                f"[bold]Selected Movie (GPT):[/bold] {header_title} " + (f"({display_year})" if display_year else ""),
+                border_style="green"
+            ))
+            # Show the deep summary as markdown; truncate if extremely long for console readability
+            summary_text = deep_plot.strip()
+            max_chars = 8000
+            to_show = summary_text if len(summary_text) <= max_chars else summary_text[:max_chars] + "\n\n[...truncated for display; full content used in reimagining...]"
+            console.print(Markdown(to_show))
+        except Exception:
+            pass
 
         
         genres = [
@@ -550,7 +585,7 @@ def main():
         )
 
         console.print(Panel.fit(
-            f"[bold cyan]Reimagining Movie (GPT Source)[/bold cyan]\n{chosen.get('title') or query_title} {(f'({year_str})' if year_str else '')} → Target World\nGenre: {selected_genre}",
+            f"[bold cyan]Reimagining Movie (GPT Source)[/bold cyan]\n{chosen.get('title') or query_title} {(f'({year_str})' if year_str else '')} → {target_world}\nGenre: {selected_genre}",
             border_style="cyan"
         ))
 
@@ -729,7 +764,7 @@ def main():
         )
 
         console.print(Panel.fit(
-            f"[bold cyan]Reimagining Movie (Perplexity Source)[/bold cyan]\n{title_str} {(f'({year_str})' if year_str else '')} → Target World\nGenre: {selected_genre}",
+            f"[bold cyan]Reimagining Movie (Perplexity Source)[/bold cyan]\n{title_str} {(f'({year_str})' if year_str else '')} → {target_world}\nGenre: {selected_genre}",
             border_style="cyan"
         ))
 
@@ -953,7 +988,7 @@ def main():
         )
 
         console.print(Panel.fit(
-            f"[bold cyan]Reimagining Movie (Web Source)[/bold cyan]\n{title_str} {(f'({year_str})' if year_str else '')} → Target World\nGenre: {selected_genre}",
+            f"[bold cyan]Reimagining Movie (Web Source)[/bold cyan]\n{title_str} {(f'({year_str})' if year_str else '')} → {target_world}\nGenre: {selected_genre}",
             border_style="cyan"
         ))
 
