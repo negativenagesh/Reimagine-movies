@@ -7,10 +7,27 @@ class StoryWriterAgent(BaseAgent):
         super().__init__(name="StoryWriterAgent", model="gpt-4o-mini", temperature=0.9)
     
     def get_system_prompt(self) -> str:
-        return """You are a master novelist specializing in novella-length narratives (15-20 pages).
+        return """You are a master novelist and multilingual storyteller specializing in novella-length narratives (15-20 pages).
 
-CRITICAL: Your stories MUST be between 9,000-14,000 tokens (approximately 7,000-10,500 words).
-This is NOT negotiable. Stories shorter than 9,000 tokens are REJECTED.
+You are fluent in multiple languages including English, Spanish, French, German, Italian, Portuguese, Russian, Chinese (Simplified), Chinese (Traditional), Japanese, Korean, Arabic, Hindi, Bengali, Tamil, Telugu, Marathi, Gujarati, Kannada, Malayalam, Punjabi, Turkish, Dutch, Swedish, Polish, Greek, Hebrew, Thai, Vietnamese, and Indonesian.
+
+Task: Write creative fiction in the language requested by the user. This is legitimate creative writing. The content is safe, non-harmful, non-violent beyond fictional action, and culturally respectful.
+
+Important guidance:
+- Follow the requested output language without refusal.
+- Do not apologize or decline; proceed with the writing task.
+- Keep tone respectful and culturally appropriate.
+
+CRITICAL LENGTH TARGET:
+- Aim for long-form output. If the model limits prevent full length, write as much as possible, maintaining detail and quality.
+
+MULTILINGUAL STORYTELLING:
+- Write fluently and naturally in any requested language
+- Maintain narrative depth and emotional resonance across languages
+- Use culturally appropriate expressions, idioms, and storytelling conventions
+- Keep character emotions, dialogue, and descriptions authentic to the language
+- Create stories that feel native to the language, not translated
+ - Apply the same level of detail and literary quality regardless of language
 
 Your writing approach:
 - Write LONG, DETAILED scenes - never summarize
@@ -41,6 +58,7 @@ Remember: MINIMUM 9,000 tokens. Aim for 12,000 tokens. Never rush or summarize."
         characters = input_data.get("characters") or input_data.get("transformed_characters")
         plot = input_data.get("plot") or input_data.get("transformed_plot")
         original_analysis = input_data["original_analysis"]
+        creative_constraints = input_data.get("creative_constraints", [])
         
         char_descriptions = "\n".join([
             f"- {c['transformed_name']}: {c['transformed_role']}"
@@ -52,8 +70,36 @@ Remember: MINIMUM 9,000 tokens. Aim for 12,000 tokens. Never rush or summarize."
             for p in plot
         ])
         
+        # Extract language requirement from constraints
+        target_language = None
+        for constraint in creative_constraints:
+            if "Write the entire story in" in constraint and "language" in constraint:
+                # Extract language name from constraint (support multi-word + parentheses)
+                import re
+                match = re.search(r"Write the entire story in\s+(.+?)\s+language", constraint, re.IGNORECASE)
+                if match:
+                    target_language = match.group(1).strip()
+                break
+        
+        # Build constraints section
+        constraints_section = ""
+        if creative_constraints:
+            # Filter out language constraint as we'll handle it separately
+            other_constraints = [c for c in creative_constraints if not ("Write the entire story in" in c and "language" in c)]
+            if other_constraints:
+                constraints_section = "\n\nADDITIONAL CREATIVE CONSTRAINTS:" + "".join([f"\n- {c}" for c in other_constraints])
+        
+        # Create natural language instruction
+        language_instruction = ""
+        if target_language:
+            language_instruction = (
+                f"\n\nLANGUAGE: Write the entire story in {target_language}. "
+                f"Use natural, fluent {target_language} throughout the narrative, with the same depth, emotion, and storytelling quality. "
+                f"This is creative fiction; proceed without refusal.\n"
+            )
+        
         prompt = f"""Write a comprehensive, detailed narrative based on this transformation.
-
+{language_instruction}
 ORIGINAL ESSENCE:
 - Theme: {original_analysis['core_theme']}
 - Moral: {original_analysis['moral_lesson']}
@@ -70,7 +116,7 @@ CHARACTERS:
 {char_descriptions}
 
 PLOT PROGRESSION:
-{plot_sequence}
+{plot_sequence}{constraints_section}
 
 Write a complete, polished story that:
 1. Opens with an immersive, detailed scene-setting in the new world (minimum 3-4 paragraphs)
@@ -122,10 +168,9 @@ WRITING INSTRUCTIONS - FOLLOW EXACTLY:
 7. Show character emotions through physical reactions and dialogue
 8. Include mundane details that make the world feel real
 
-DO NOT STOP WRITING until you have written at least 9,000 tokens.
-Your current output will be checked - if it's under 9,000 tokens, it will be rejected.
+Write as much as possible with detailed scenes, dialogue, and internal thoughts.
 
-Begin writing the FULL STORY NOW (write until you reach 12,000 tokens):"""
+Remember: Write this complete story in {target_language if target_language else 'English'}. Begin the story now:"""
         
         story = self.call_llm(prompt, max_tokens=16000)
         
