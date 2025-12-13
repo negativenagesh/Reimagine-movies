@@ -12,6 +12,12 @@
 
 [▶️ Demo1 – KGF Chapter 1 reimagined into Vedic Era (English)](Demo/Demo1-KGF_Chapter1-VedicEra_English.mov)
 
+<div align="center">
+   <video src="Demo/Demo1-KGF_Chapter1-VedicEra_English.mov" controls preload="metadata" style="max-width: 100%; height: auto;">
+      Your browser does not support the video tag.
+   </video>
+</div>
+
 AI-powered narrative transformation using a multi-agent microservice architecture. Reimagine movies into entirely different worlds while preserving their core essence. The system can also transform predefined classic stories from the data folder. Using specialized multi-agents, it systematically transforms narratives across contexts. Each agent handles a specific aspect of the transformation process, working together through a central orchestrator.
 
 <div align="center">
