@@ -10,6 +10,7 @@
 
 AI-powered narrative transformation using a multi-agent microservice architecture. Reimagine movies into entirely different worlds while preserving their core essence. The system can also transform predefined classic stories from the data folder. Using specialized multi-agents, it systematically transforms narratives across contexts. Each agent handles a specific aspect of the transformation process, working together through a central orchestrator.
 
+## Demo
 <div align="center">
    <img src="Demo/Demo1-KGF_Chapter1-VedicEra_English.gif" alt="KGF Chapter 1 → Vedic Era (English) demo" style="max-width: 100%; height: auto;" />
 </div>
