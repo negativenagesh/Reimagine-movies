@@ -8,11 +8,9 @@
 [![CI](https://img.shields.io/badge/CI-ready-success?style=flat-square)]()
 </div>
 
-AI-powered narrative transformation using a multi-agent microservice architecture. Transform classic stories into new worlds while preserving their core essence. This system uses specialized multi-agents to systematically transform narratives across contexts. Each agent handles a specific aspect of the transformation process, working together through a central orchestrator.
+AI-powered narrative transformation using a multi-agent microservice architecture. Reimagine movies into entirely different worlds while preserving their core essence. The system can also transform predefined classic stories from the data folder. Using specialized multi-agents, it systematically transforms narratives across contexts. Each agent handles a specific aspect of the transformation process, working together through a central orchestrator.
 
 <div align="center">
-
-### System Architecture
 
 ```
                     ┌──────────────────────────────────────────────────────────────┐
@@ -86,7 +84,8 @@ AI-powered narrative transformation using a multi-agent microservice architectur
 ## How It Works
 
 The system **does NOT use movie subtitles**. Instead, it works from:
-- Public domain story synopses and plot summaries
+- Movie plots fetched via OMDb API, GPT-generated summaries, or web search
+- Predefined classic stories from `data/source_stories.yaml` (Romeo and Juliet, Dracula, etc.)
 - Structured knowledge about narrative patterns (Hero's Journey, character archetypes)
 - Transformation examples and world-building templates
 - Few-shot learning with carefully crafted prompts
@@ -154,7 +153,7 @@ OPENAI_API_KEY=sk-your-key-here
 ### Command Line Interface
 #### Run Example Transformation
 
-Transforms Romeo and Juliet into a Silicon Valley AI labs rivalry.
+Reimagine movies by title (OMDb, GPT, or web search) or use predefined classic stories like Romeo and Juliet from `data/source_stories.yaml`.
 
 #### Transform a Predefined Story
 ```bash
@@ -214,11 +213,11 @@ Notes:
 - It then produces an in-depth plot summary used as `source_story` for the same pipeline.
 - Genre selection is applied to `creative_constraints`.
 
-#### Web Search Movie Reimagining (GPT-5-mini)
-Use GPT-5-mini with the web search tool to disambiguate titles and generate an in-depth summary from current web data.
+#### Web Search Movie Reimagining (GPT-4o-mini with Web Search)
+Use GPT-4o-mini with web search capabilities to search for movies and get complete, up-to-date information from the web.
 
 ```bash
-# Interactive: candidates via web search, pick one, choose genre, describe world
+# Interactive: search movie, review results, choose genre, language, describe world
 uv run main.py --movie-title-web "Dhurandhar"
 
 # Provide world and output explicitly
@@ -228,9 +227,13 @@ uv run main.py --movie-title-web "Dhurandhar" \
 ```
 
 Notes:
-- Uses `gpt-5-mini-2025-08-07` with `web_search` tools to gather recent information.
-- Returns candidates in JSON, then produces a markdown deep summary used as `source_story`.
-- Genre selection is applied to `creative_constraints`.
+- Uses `gpt-4o-mini-search-preview-2025-03-11` with `web_search_options={}` to gather recent movie information.
+- Simple search query: `"search for movie - {title}"` returns comprehensive results including plot, cast, release info, streaming availability.
+- Displays complete search results in markdown format for review.
+- User confirms before proceeding with reimagining.
+- Prompts for genre (15 options), language style (15 options), and output language (30 languages; defaults to English).
+- Full search result used as `source_story` for transformation.
+- All selections applied to `creative_constraints` to guide the transformation.
 
 #### Getting Your OMDb API Key
 
@@ -250,8 +253,8 @@ OPENAI_API_KEY=sk-your-openai-key-here
 OMDB_API_KEY=11b915c8
 ```
 
-### Running with Predefined Stories
-Use entries from `data/source_stories.yaml`.
+### Running with Predefined Classic Stories
+The system includes predefined classic stories (Romeo and Juliet, Dracula, Odyssey, etc.) in `data/source_stories.yaml` that can be reimagined into different worlds.
 
 ```bash
 # List stories
@@ -278,9 +281,9 @@ uv run main.py --preview-file output/romeo_juliet_ai_labs.md
 
 ## Ancient India Target Worlds
 
-Transform movies into richly detailed Ancient India-inspired settings. Each world offers unique cultural, technological, and social dynamics perfect for narrative reimagining.
+Reimagine movies or predefined classic stories into richly detailed Ancient India-inspired settings. Each example world offers unique cultural, technological, and social dynamics perfect for narrative transformation.
 
-### Available Worlds
+### Example Worlds
 
 1. **Vedic Era** - Bronze Age Saraswati valley with ritual specialists and nomadic tribes
 2. **Mauryan Empire** - Imperial administration, Buddhist monasteries, Arthashastra politics
@@ -371,10 +374,12 @@ uv run main.py \
 ## Changes Made
 - OMDb integration now feeds directly into the transformation pipeline. After you select a movie, its full plot is used as `source_story`, the orchestrator runs, and the output is saved.
 - Genre selection added before reimagining. You choose from a curated list; the chosen genre is applied to `creative_constraints` to guide tone, pacing, and conventions.
+- **Language selection prompt**: Before transformation, you can select from 30 languages (English, Spanish, French, German, Italian, Portuguese, Russian, Chinese, Japanese, Korean, Arabic, Hindi, Bengali, Tamil, Telugu, Marathi, Gujarati, Kannada, Malayalam, Punjabi, Turkish, Dutch, Swedish, Polish, Greek, Hebrew, Thai, Vietnamese, Indonesian). Defaults to English if skipped.
+- **Web Search Integration**: The `--movie-title-web` flow now uses `gpt-4o-mini-search-preview-2025-03-11` via `src/web_search.py` module with simplified search that returns complete movie information (plot, cast, release details, streaming) without complex parsing.
 - Output saving improved. If `--output` is not specified, files are auto-named like `output/reimagined_<title>.md`. Markdown headers include computed length and consistency score.
 - Console preview support. Use `--preview-file` to render Markdown or text outputs; `--preview` shows predefined story summaries.
 - README updated for `uv` workflows, agent roles, and OMDb API key setup instructions.
-- Multiple movie lookup flows available: OMDb (fast, reliable), GPT-based (deep summaries), and Web Search (current data).
+- Multiple movie lookup flows available: OMDb (fast, reliable), GPT-based (deep summaries), and Web Search (current data with indexed selection).
 
 ### API Server
 
@@ -517,10 +522,10 @@ Our approach uses plot summaries that capture these essential elements.
 ## Evaluation Criteria Addressed
 
 ### System Thinking
-- Abstracted transformation into reusable agent pipeline
+- Abstracted movie/story transformation into reusable agent pipeline
 - Each agent handles one concern
 - Orchestrator manages coordination
-- Knowledge base provides reusable patterns
+- Knowledge base provides reusable narrative patterns
 
 ### Technical Execution
 - Clean, modular code
@@ -541,9 +546,9 @@ Our approach uses plot summaries that capture these essential elements.
 - Reusable knowledge base
 
 ### Bias Toward Action
-- Working demo with example
+- Working demo with multiple input methods (OMDb, GPT, web search, predefined stories)
 - Multiple interfaces (CLI, API)
-- Predefined stories for quick testing
+- Predefined classic stories for quick testing
 - Complete end-to-end system
 
 ### Ownership & Innovation
