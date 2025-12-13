@@ -3,7 +3,7 @@ from typing import Dict, Any, Optional
 import json
 import os
 from pathlib import Path
-from openai import OpenAI
+from openai import OpenAI, AsyncOpenAI
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
@@ -16,6 +16,7 @@ class BaseAgent(ABC):
         self.model = model
         self.temperature = temperature
         self.client = OpenAI()
+        self.async_client = AsyncOpenAI()
         self.conversation_history = []
     
     @abstractmethod
@@ -62,6 +63,23 @@ class BaseAgent(ABC):
         ]
         
         response = self.client.chat.completions.create(
+            model=self.model,
+            messages=messages,
+            temperature=self.temperature,
+            max_tokens=max_tokens,
+            response_format={"type": "json_object"}
+        )
+        
+        return json.loads(response.choices[0].message.content)
+    
+    async def call_llm_json_async(self, user_message: str, max_tokens: int = 4000) -> Dict[str, Any]:
+        """Async version of call_llm_json for true concurrent operations."""
+        messages = [
+            {"role": "system", "content": self.get_system_prompt()},
+            {"role": "user", "content": user_message}
+        ]
+        
+        response = await self.async_client.chat.completions.create(
             model=self.model,
             messages=messages,
             temperature=self.temperature,
