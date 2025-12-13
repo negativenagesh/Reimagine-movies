@@ -99,7 +99,8 @@ class TransformationOrchestrator:
             "world": transformed_world,
             "characters": transformed_characters,
             "plot": transformed_plot,
-            "original_analysis": original_analysis
+            "original_analysis": original_analysis,
+            "creative_constraints": request.creative_constraints
         })
         self.console.print("✅ Story writing complete\n", style="green")
         
