@@ -15,10 +15,62 @@ from dotenv import load_dotenv
 from src.models.domain import TransformationRequest
 from src.orchestrator import TransformationOrchestrator
 from src.agents.base import BaseAgent
+from src.web_search import web_search_movie
 
 
 console = Console()
 load_dotenv()
+
+LANGUAGE_STYLES = [
+    "Simple Human Language",
+    "Professional Language",
+    "Poetic Language",
+    "Colloquial Language",
+    "Academic Language",
+    "Fantasy/Mythological Language",
+    "Narrative Language",
+    "Descriptive Language",
+    "Dialogic Language",
+    "Humorous Language",
+    "Didactic Language",
+    "Inventive/Experimental Language",
+    "Emotive Language",
+    "Persuasive Language",
+    "Technical Language"
+]
+
+LANGUAGES = [
+    "English",
+    "Spanish",
+    "French",
+    "German",
+    "Italian",
+    "Portuguese",
+    "Russian",
+    "Chinese (Simplified)",
+    "Chinese (Traditional)",
+    "Japanese",
+    "Korean",
+    "Arabic",
+    "Hindi",
+    "Bengali",
+    "Tamil",
+    "Telugu",
+    "Marathi",
+    "Gujarati",
+    "Kannada",
+    "Malayalam",
+    "Punjabi",
+    "Turkish",
+    "Dutch",
+    "Swedish",
+    "Polish",
+    "Greek",
+    "Hebrew",
+    "Thai",
+    "Vietnamese",
+    "Indonesian"
+]
 
 
 def load_source_story(story_name: str) -> str:
@@ -147,11 +199,17 @@ async def run_transformation(args):
         border_style="cyan"
     ))
     
+    constraints = list(args.constraints or [])
+    if args.language_style:
+        constraints.append(f"Write in {args.language_style} style")
+    if args.output_language and args.output_language != "English":
+        constraints.append(f"Write the entire story in {args.output_language} language, maintaining all emotions, feelings, cultural nuances, and narrative depth")
+    
     request = TransformationRequest(
         source_story=source_story,
         target_world_description=args.target_world,
         maintain_elements=args.maintain or [],
-        creative_constraints=args.constraints or []
+        creative_constraints=constraints
     )
     
     orchestrator = TransformationOrchestrator()
@@ -221,6 +279,16 @@ def main():
         "--constraints",
         nargs="+",
         help="Creative constraints to apply"
+    )
+    
+    parser.add_argument(
+        "--language-style",
+        help="Writing style for the story (Simple, Professional, Poetic, etc.)"
+    )
+    
+    parser.add_argument(
+        "--output-language",
+        help="Language for the final story output (English, Spanish, Hindi, etc.)"
     )
     
     parser.add_argument(
@@ -383,6 +451,20 @@ def main():
                 genre_idx = 4
             selected_genre = genres[genre_idx - 1]
 
+            language_style = args.language_style
+            if not language_style:
+                console.print("[bold]Select a language style (optional, press Enter to skip):[/bold]")
+                for i, style in enumerate(LANGUAGE_STYLES, 1):
+                    console.print(f"  {i}. {style}")
+                style_choice = Prompt.ask("Enter style number or press Enter to skip", default="")
+                if style_choice.strip():
+                    try:
+                        style_idx = int(style_choice)
+                        if 1 <= style_idx <= len(LANGUAGE_STYLES):
+                            language_style = LANGUAGE_STYLES[style_idx - 1]
+                    except ValueError:
+                        pass
+
             
             target_world = args.target_world
             if not target_world:
@@ -408,6 +490,22 @@ def main():
                 f"[bold cyan]Reimagining Movie[/bold cyan]\n{full_data.get('Title')} ({full_data.get('Year')}) → {target_world}\nGenre: {selected_genre}",
                 border_style="cyan"
             ))
+
+            # Prompt for output language before transformation
+            console.print("[bold]Select an output language (optional, press Enter to skip):[/bold]")
+            for i, lang in enumerate(LANGUAGES, 1):
+                console.print(f"  {i}. {lang}")
+            lang_choice = Prompt.ask("Enter language number or press Enter to skip", default="")
+            output_language = None
+            try:
+                if lang_choice:
+                    lang_idx = int(lang_choice)
+                    if 1 <= lang_idx <= len(LANGUAGES):
+                        output_language = LANGUAGES[lang_idx - 1]
+            except ValueError:
+                output_language = None
+            if output_language and output_language != "English":
+                constraints.append(f"Write the entire story in {output_language} language, maintaining all emotions, feelings, cultural nuances, and narrative depth")
 
             orchestrator = TransformationOrchestrator()
             result = asyncio.run(orchestrator.transform_story(request))
@@ -562,6 +660,20 @@ def main():
             genre_idx = 4
         selected_genre = genres[genre_idx - 1]
 
+        language_style = args.language_style
+        if not language_style:
+            console.print("[bold]Select a language style (optional, press Enter to skip):[/bold]")
+            for i, style in enumerate(LANGUAGE_STYLES, 1):
+                console.print(f"  {i}. {style}")
+            style_choice = Prompt.ask("Enter style number or press Enter to skip", default="")
+            if style_choice.strip():
+                try:
+                    style_idx = int(style_choice)
+                    if 1 <= style_idx <= len(LANGUAGE_STYLES):
+                        language_style = LANGUAGE_STYLES[style_idx - 1]
+                except ValueError:
+                    pass
+
         
         target_world = args.target_world
         if not target_world:
@@ -570,8 +682,29 @@ def main():
                 default="Near-future metropolis driven by AI governance and corporate factions"
             )
 
+        output_language = args.output_language
+        if not output_language:
+            console.print("[bold]Select output language for the final story (optional, press Enter for English):[/bold]")
+            for i, lang in enumerate(LANGUAGES, 1):
+                console.print(f"  {i}. {lang}")
+            lang_choice = Prompt.ask("Enter language number or press Enter for English", default="1")
+            try:
+                lang_idx = int(lang_choice)
+                if 1 <= lang_idx <= len(LANGUAGES):
+                    output_language = LANGUAGES[lang_idx - 1]
+                else:
+                    output_language = "English"
+            except ValueError:
+                output_language = "English"
+        else:
+            output_language = output_language or "English"
+
         maintain = args.maintain or []
         constraints = list(args.constraints or []) + [f"Align tone, pacing, and conventions to {selected_genre} genre"]
+        if language_style:
+            constraints.append(f"Write in {language_style} style")
+        if output_language and output_language != "English":
+            constraints.append(f"Write the entire story in {output_language} language, maintaining all emotions, feelings, cultural nuances, and narrative depth")
         request = TransformationRequest(
             source_story=deep_plot,
             target_world_description=target_world,
@@ -598,177 +731,31 @@ def main():
 
     if args.movie_title_web:
         console.print(Panel.fit("[bold cyan]Web Search Movie Details Lookup[/bold cyan]", border_style="cyan"))
-        client = OpenAI()
-
         query_title = args.movie_title_web
-        disambiguation_prompt = (
-            "Search the web for movies matching the given title and return STRICT JSON with 'candidates' as a list of objects: "
-            "[{title, year, region, alt_titles}]. Include at least 5 candidates when possible, covering identical names across different years, "
-            "languages/regions, remakes, and festival titles. Prefer recent data when available.\n"
-            "Example output: {\n  \"candidates\": [\n    {\"title\": \"Dhurandhar\", \"year\": \"2019\", \"region\": \"India (Marathi)\", \"alt_titles\": []},\n    {\"title\": \"Dhurandhar Bhonsle\", \"year\": \"2022\", \"region\": \"India (Marathi)\", \"alt_titles\": [\"Bhosale\"]}\n  ]\n}\n"
-            f"Title: {query_title}"
-        )
-        try:
-            resp = client.chat.completions.create(
-                model="gpt-5-mini-2025-08-07",
-                messages=[{"role": "user", "content": disambiguation_prompt}],
-                tools=[{
-                    "type": "function",
-                    "function": {
-                        "name": "web_search",
-                        "description": "Search the web for movie information and recent data",
-                        "parameters": {
-                            "type": "object",
-                            "properties": {"query": {"type": "string"}},
-                            "required": ["query"]
-                        }
-                    }
-                }],
-                tool_choice="auto",
-            )
-            dis_msg = resp.choices[0].message
-            dis_content = getattr(dis_msg, "content", "") or ""
-            dis_json = {}
-            try:
-                dis_json = json.loads(dis_content)
-            except Exception:
-                dis_json = {"candidates": []}
-        except Exception as e:
-            console.print(f"[red]Web search disambiguation failed:[/red] {e}")
-            dis_json = {"candidates": [{"title": query_title, "year": "", "region": "", "alt_titles": []}]}
 
-        candidates = dis_json.get("candidates") or []
-        if len(candidates) < 2:
-            try:
-                disambiguation_prompt2 = (
-                    "Expand candidate list. Return STRICT JSON 'candidates' with diverse entries across regions and years; minimum 5 if possible.\n"
-                    f"Title: {query_title}"
-                )
-                resp2 = client.chat.completions.create(
-                    model="gpt-5-mini-2025-08-07",
-                    messages=[{"role": "user", "content": disambiguation_prompt2}],
-                    tools=[{
-                        "type": "function",
-                        "function": {
-                            "name": "web_search",
-                            "description": "Search the web for movie information and recent data",
-                            "parameters": {
-                                "type": "object",
-                                "properties": {"query": {"type": "string"}},
-                                "required": ["query"]
-                            }
-                        }
-                    }],
-                    tool_choice="auto",
-                )
-                dis_msg2 = resp2.choices[0].message
-                dis_content2 = getattr(dis_msg2, "content", "") or ""
-                try:
-                    dis_json2 = json.loads(dis_content2)
-                    candidates2 = dis_json2.get("candidates") or []
-                    if len(candidates2) > len(candidates):
-                        candidates = candidates2
-                except Exception:
-                    pass
-            except Exception:
-                pass
-        if not candidates:
-            candidates = [{"title": query_title, "year": "", "region": "", "alt_titles": []}]
-        if len(candidates) < 2:
-            console.print("[yellow]Only one candidate found via web search; adding likely variants for selection.[/yellow]")
-            synthetic = [
-                {"title": query_title, "year": "2019", "region": "India", "alt_titles": []},
-                {"title": f"{query_title} Bhonsle", "year": "2022", "region": "India", "alt_titles": [query_title]}
-            ]
-            # Merge unique by title+year
-            seen = {(c.get('title'), str(c.get('year'))) for c in candidates}
-            for s in synthetic:
-                key = (s.get('title'), s.get('year'))
-                if key not in seen:
-                    candidates.append(s)
-                    seen.add(key)
+        # Use GPT-4o-mini web search to get complete movie information
+        console.print(f"\n[cyan]Searching for: {query_title}...[/cyan]\n")
+        search_result = web_search_movie(query_title)
+        
+        if not search_result or len(search_result.strip()) < 50:
+            console.print("[red]No detailed results found via web search[/red]")
+            return
+        
+        # Display the search results
+        console.print(Panel.fit("[bold]Search Results:[/bold]", border_style="green"))
+        console.print(Markdown(search_result))
+        
+        # Ask user to confirm they want to proceed with this movie
+        proceed = Prompt.ask("\nProceed with reimagining this movie?", choices=["y", "n"], default="y")
+        if proceed.lower() != "y":
+            console.print("[yellow]Cancelled[/yellow]")
+            return
+        
+        # Use the search result as the movie plot
+        movie_plot = search_result
+        title_str = query_title
 
-        console.print("[bold]Candidates:[/bold]")
-        for i, c in enumerate(candidates, 1):
-            y = c.get("year")
-            ys = str(y) if y else ""
-            suffix = f" ({ys})" if ys else ""
-            console.print(f"  {i}. {c.get('title')}{suffix}")
-        sel_str = Prompt.ask("Select candidate number", default="1")
-        try:
-            sel_idx = int(sel_str)
-        except ValueError:
-            sel_idx = 1
-        if sel_idx < 1 or sel_idx > len(candidates):
-            sel_idx = 1
-        chosen = candidates[sel_idx - 1]
-
-        title_str = chosen.get("title") or query_title
-        year_val = chosen.get("year")
-        year_str = str(year_val) if year_val else ""
-
-        deep_prompt = (
-            "Search the web and produce an IN-DEPTH plot summary suitable for narrative reimagining (2000+ words). "
-            "Include: logline; setting; principal characters with roles and arcs; detailed act-by-act breakdown with scene-level beats; themes; motifs; symbols; "
-            "emotional beats; moral questions; production/context notes; and reimagining hooks. Output as markdown text (no JSON).\n"
-            f"Movie: {title_str}" + (f" ({year_str})" if year_str else "")
-        )
-        try:
-            sum_resp = client.chat.completions.create(
-                model="gpt-5-mini-2025-08-07",
-                messages=[{"role": "user", "content": deep_prompt}],
-                tools=[{
-                    "type": "function",
-                    "function": {
-                        "name": "web_search",
-                        "description": "Search the web for movie information and recent data",
-                        "parameters": {
-                            "type": "object",
-                            "properties": {"query": {"type": "string"}},
-                            "required": ["query"]
-                        }
-                    }
-                }],
-                tool_choice="auto",
-            )
-            deep_plot = getattr(sum_resp.choices[0].message, "content", "") or ""
-        except Exception as e:
-            console.print(f"[red]Web search summary failed:[/red] {e}")
-            deep_plot = ""
-
-        if not deep_plot or len(deep_plot.strip()) < 500:
-            try:
-                deep_prompt2 = (
-                    "Augment with scene-by-scene detail, stakes escalations, antagonist strategies, and resolution consequences. "
-                    "Conclude with a checklist of transformation levers (setting, tech, social structures, conflict systems). Output as markdown.\n"
-                    f"Movie: {title_str}" + (f" ({year_str})" if year_str else "")
-                )
-                sum_resp2 = client.chat.completions.create(
-                    model="gpt-5-mini-2025-08-07",
-                    messages=[{"role": "user", "content": deep_prompt2}],
-                    tools=[{
-                        "type": "function",
-                        "function": {
-                            "name": "web_search",
-                            "description": "Search the web for movie information and recent data",
-                            "parameters": {
-                                "type": "object",
-                                "properties": {"query": {"type": "string"}},
-                                "required": ["query"]
-                            }
-                        }
-                    }],
-                    tool_choice="auto",
-                )
-                deep_plot2 = getattr(sum_resp2.choices[0].message, "content", "") or ""
-                if len(deep_plot2.strip()) > len(deep_plot.strip()):
-                    deep_plot = deep_plot2
-            except Exception:
-                pass
-        if not deep_plot or len(deep_plot.strip()) < 500:
-            console.print("[yellow]Web summary looks short; proceeding with available content.[/yellow]")
-            deep_plot = deep_plot or f"Detailed plot summary for {title_str}."
-
+        # Prompt for genre
         genres = [
             "Action","Adventure","Comedy","Drama","Horror","Romance",
             "Science Fiction","Fantasy","Thriller","Western","Musical",
@@ -786,6 +773,20 @@ def main():
             genre_idx = 4
         selected_genre = genres[genre_idx - 1]
 
+        language_style = args.language_style
+        if not language_style:
+            console.print("[bold]Select a language style (optional, press Enter to skip):[/bold]")
+            for i, style in enumerate(LANGUAGE_STYLES, 1):
+                console.print(f"  {i}. {style}")
+            style_choice = Prompt.ask("Enter style number or press Enter to skip", default="")
+            if style_choice.strip():
+                try:
+                    style_idx = int(style_choice)
+                    if 1 <= style_idx <= len(LANGUAGE_STYLES):
+                        language_style = LANGUAGE_STYLES[style_idx - 1]
+                except ValueError:
+                    pass
+
         target_world = args.target_world
         if not target_world:
             target_world = Prompt.ask(
@@ -793,18 +794,39 @@ def main():
                 default="Near-future metropolis driven by AI governance and corporate factions"
             )
 
+        output_language = args.output_language
+        if not output_language:
+            console.print("[bold]Select output language for the final story (optional, press Enter for English):[/bold]")
+            for i, lang in enumerate(LANGUAGES, 1):
+                console.print(f"  {i}. {lang}")
+            lang_choice = Prompt.ask("Enter language number or press Enter for English", default="1")
+            try:
+                lang_idx = int(lang_choice)
+                if 1 <= lang_idx <= len(LANGUAGES):
+                    output_language = LANGUAGES[lang_idx - 1]
+                else:
+                    output_language = "English"
+            except ValueError:
+                output_language = "English"
+        else:
+            output_language = output_language or "English"
+
         maintain = args.maintain or []
         constraints = list(args.constraints or []) + [f"Align tone, pacing, and conventions to {selected_genre} genre"]
+        if language_style:
+            constraints.append(f"Write in {language_style} style")
+        if output_language and output_language != "English":
+            constraints.append(f"Write the entire story in {output_language} language, maintaining all emotions, feelings, cultural nuances, and narrative depth")
 
         request = TransformationRequest(
-            source_story=deep_plot,
+            source_story=movie_plot,
             target_world_description=target_world,
             maintain_elements=maintain,
             creative_constraints=constraints,
         )
 
         console.print(Panel.fit(
-            f"[bold cyan]Reimagining Movie (Web Source)[/bold cyan]\n{title_str} {(f'({year_str})' if year_str else '')} → {target_world}\nGenre: {selected_genre}",
+            f"[bold cyan]Reimagining Movie (Web Source)[/bold cyan]\n{title_str} → {target_world}\nGenre: {selected_genre}",
             border_style="cyan"
         ))
 
