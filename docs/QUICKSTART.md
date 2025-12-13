@@ -16,10 +16,18 @@ uv sync
 touch .env
 ```
 
-Edit `.env` and add your OpenAI API key:
+Edit `.env` and add your required API keys:
 ```
 OPENAI_API_KEY=sk-your-actual-key-here
+OMDB_API_KEY=your-omdb-api-key
 ```
+
+OMDb (Open Movie Database) API is used for the `--movie-title` flow to fetch official movie plots.
+
+How to get OMDb API key:
+- Visit http://www.omdbapi.com/apikey.aspx
+- Choose the free tier (up to 1,000 requests/day)
+- Verify your email, then paste the key into `.env` as `OMDB_API_KEY`
 
 ### 3. Run Example
 ```bash
@@ -29,6 +37,35 @@ uv run main.py --example or uv run main.py --example
 This transforms Romeo and Juliet into a Silicon Valley AI rivalry story.
 
 ## Basic Usage
+### OMDb Movie Reimagining (official plots)
+```bash
+uv run main.py --movie-title "Sholay"
+```
+- Searches OMDb by title and lets you choose the correct match
+- Fetches the full official plot as the source story
+- Prompts you to select a genre to guide tone and conventions
+
+Optional:
+```bash
+uv run main.py --movie-title "Sholay" \
+  --target-world "Neo-Noir Mumbai in 2040 with AI-enhanced policing and syndicates" \
+  --output sholay_neo_noir.md
+```
+Requires: `OMDB_API_KEY` in `.env`
+
+### GPT-Based Movie Reimagining (when OMDb is insufficient)
+```bash
+uv run main.py --movie-title-gpt "Sholay"
+```
+- Uses GPT to suggest disambiguation and produce a deep, structured plot summary
+- Same transformation pipeline; useful for recent/regional titles missing in OMDb
+
+### Web Search Movie Reimagining (current web data)
+```bash
+uv run main.py --movie-title-web "Dhurandhar"
+```
+- Uses GPT with web search to assemble comprehensive, up-to-date details
+- You confirm the result before transformation
 
 ### List Available Stories
 ```bash
@@ -38,12 +75,12 @@ uv run main.py --list-stories
 Output:
 ```
 Available Stories:
-  • ROMEO_AND_JULIET
-  • DRACULA
-  • ODYSSEY
-  • FRANKENSTEIN
-  • HAMLET
-  • CINDERELLA
+  ROMEO_AND_JULIET
+  DRACULA
+  ODYSSEY
+  FRANKENSTEIN
+  HAMLET
+  CINDERELLA
 ```
 
 ### Transform a Story
@@ -85,13 +122,17 @@ curl -X POST http://localhost:8000/transform \
     "target_world_description": "A space station in 2247",
     "maintain_elements": ["theme", "character arcs"],
     "creative_constraints": ["hard science fiction"]
-  }' \
-  | jq '.full_story'
+  }'
+```
+
+Tip: If you're transforming a movie via CLI first, the output is saved in `output/`. You can preview it with:
+```bash
+uv run main.py --preview-file output/reimagined_<title>.md
 ```
 
 ### Get Example Transformations
 ```bash
-curl http://localhost:8000/knowledge-base/examples | jq
+curl http://localhost:8000/knowledge-base/examples
 ```
 
 ## Common Commands
@@ -120,6 +161,11 @@ uv sync
 
 ### "openai.APIError: Invalid API key"
 Check your `.env` file has correct `OPENAI_API_KEY=sk-...`
+
+### "OMDb error" or "No results found"
+- Ensure `OMDB_API_KEY` is set in `.env`
+- Try a more precise title or include the year
+- Use `--movie-title-gpt` or `--movie-title-web` for alternate sources
 
 ### "FileNotFoundError: data/source_stories.yaml"
 Run from project root directory:
