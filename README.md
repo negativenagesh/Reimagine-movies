@@ -8,6 +8,10 @@
 [![CI](https://img.shields.io/badge/CI-ready-success?style=flat-square)]()
 </div>
 
+**Demo:** Click to preview a sample transformation video
+
+[▶️ Demo1 – KGF Chapter 1 reimagined into Vedic Era (English)](Demo/Demo1-KGF_Chapter1-VedicEra_English.mov)
+
 AI-powered narrative transformation using a multi-agent microservice architecture. Reimagine movies into entirely different worlds while preserving their core essence. The system can also transform predefined classic stories from the data folder. Using specialized multi-agents, it systematically transforms narratives across contexts. Each agent handles a specific aspect of the transformation process, working together through a central orchestrator.
 
 <div align="center">
@@ -128,6 +132,7 @@ The system **does NOT use movie subtitles**. Instead, it works from:
 - Python 3.11+
 - OpenAI API key
 - `uv` Python package manager (fast environment + installs)
+ - OMDb API key (for `--movie-title` flow)
 
 ### Setup (using uv)
 
@@ -143,10 +148,15 @@ uv sync
 touch .env
 ```
 
-Edit `.env` and add your OpenAI API key:
+Edit `.env` and add your OpenAI and OMDb API keys:
 ```
 OPENAI_API_KEY=sk-your-key-here
+OMDB_API_KEY=your-omdb-key
 ```
+To obtain an OMDb API key:
+- Visit http://www.omdbapi.com/apikey.aspx
+- Choose the free tier (1,000 daily requests)
+- Verify your email and copy the key into `.env`
 
 ## Usage
 
@@ -189,8 +199,7 @@ uv run main.py --movie-title "Sholay" \
 ```
 
 Requirements:
-- Ensure `OMDB_API_KEY` is set in `.env`. Example:
-   - `OMDB_API_KEY=11b915c8`
+- Ensure `OMDB_API_KEY` is set in `.env`.
 - The tool queries `http://www.omdbapi.com/?apikey=[yourkey]&...` (title search `s`, details `i` with `plot=full`).
 - The movie's full plot becomes the `source_story` for the same multi-agent pipeline used for predefined stories.
 - You will be prompted to select a genre (Action, Adventure, Comedy, Drama, Horror, Romance, Science Fiction, Fantasy, Thriller, Western, Musical, Mystery, Crime, Animation, Sports). The pipeline uses this to guide tone and conventions.
@@ -237,21 +246,7 @@ Notes:
 
 #### Getting Your OMDb API Key
 
-The OMDb (Open Movie Database) API provides access to movie data. To use the `--movie-title` flow:
-
-1. **Get Free API Key**: Visit [http://www.omdbapi.com/apikey.aspx](http://www.omdbapi.com/apikey.aspx)
-2. **Choose Plan**: Select the free tier (1,000 daily requests)
-3. **Verify Email**: Check your email and click the activation link
-4. **Add to .env**: Copy your API key to `.env` file:
-   ```
-   OMDB_API_KEY=your_key_here
-   ```
-
-**Example .env file:**
-```
-OPENAI_API_KEY=sk-your-openai-key-here
-OMDB_API_KEY=11b915c8
-```
+The OMDb (Open Movie Database) API provides access to movie data. To use the `--movie-title` flow, obtain a key at http://www.omdbapi.com/apikey.aspx and add it to `.env`.
 
 ### Running with Predefined Classic Stories
 The system includes predefined classic stories (Romeo and Juliet, Dracula, Odyssey, etc.) in `data/source_stories.yaml` that can be reimagined into different worlds.
@@ -303,35 +298,30 @@ Reimagine movies or predefined classic stories into richly detailed Ancient Indi
 
 ### Example Transformations
 
-#### OMDb Flow with Ancient India Worlds
+#### OMDb Flow (Recent Indian & English Films)
 ```bash
-# Transform "The Godfather" into Chola Naval Empire
-uv run main.py --movie-title "The Godfather" \
-   --target-world "Chola Naval Empire with maritime trade rivalries, temple-states controlling commerce, and bronze craftsmen guilds vying for royal patronage" \
-   --output godfather_chola.md
+# Transform "Jawan" (2023, India) into Gupta Golden Age
+uv run main.py --movie-title "Jawan" \
+   --target-world "Gupta Golden Age scientific academies and civic reforms, moral dilemmas framed by dharma and statecraft" \
+   --output jawan_gupta.md
 
-# Transform "Matrix" into Kashmir Shaivism setting
-uv run main.py --movie-title "The Matrix" \
-   --target-world "Kashmir Shaivism era with mountain monasteries preserving secret tantric knowledge, scholar-ascetics discovering reality's illusory nature" \
-   --output matrix_kashmir.md
-
-# Transform "Sholay" into Vijayanagara Kingdom
-uv run main.py --movie-title "Sholay" \
-   --target-world "Vijayanagara Kingdom with fortified cities, bazaar economy power struggles, and warrior culture defending against northern sultanates" \
-   --output sholay_vijayanagara.md
+# Transform "Oppenheimer" (2023, English) into Kashmir Shaivism
+uv run main.py --movie-title "Oppenheimer" \
+   --target-world "Kashmir Shaivism era with scholar-ascetics debating creation and destruction within cosmic consciousness" \
+   --output oppenheimer_kashmir.md
 ```
 
-#### GPT Flow with Ancient India Worlds
+#### GPT Flow (Alternate)
 ```bash
-# Transform "Inception" into Gupta Golden Age
-uv run main.py --movie-title-gpt "Inception" \
-   --target-world "Gupta Golden Age scientific academies exploring consciousness, university towns debating philosophy of dreams and Maya" \
-   --output inception_gupta.md
+# Transform "Pathaan" (2023, India) into Chola Naval Empire
+uv run main.py --movie-title-gpt "Pathaan" \
+   --target-world "Chola Naval Empire with maritime espionage, temple-state alliances, and guild politics" \
+   --output pathaan_chola.md
 
-# Transform "Dune" into Indus Valley Civilization
-uv run main.py --movie-title-gpt "Dune" \
-   --target-world "Indus Valley Civilization with urban planning conflicts, trade network wars over precious resources, scholars attempting to decipher ancient script prophecies" \
-   --output dune_indus.md
+# Transform "Dune: Part Two" (2024, English) into Indus Valley Civilization
+uv run main.py --movie-title-gpt "Dune: Part Two" \
+   --target-world "Indus Valley Civilization trade networks, resource conflicts, and prophecy interpreted through undeciphered scripts" \
+   --output dune2_indus.md
 ```
 
 #### Web Search Flow with Ancient India Worlds
@@ -362,24 +352,9 @@ uv run main.py \
    --output dracula_kerala.md
 ```
 
-### Tips for Ancient India Transformations
+<!-- Tips section removed for a more concise professional README -->
 
-- **Technology Level**: Match the world's technology constraints (bronze/iron age, monsoon-dependent agriculture, trade routes)
-- **Social Structure**: Leverage caste systems, guild dynamics, monastic orders, royal courts, or matrilineal families
-- **Power Dynamics**: Use temple patronage, trade monopolies, philosophical authority, military prowess, or religious legitimacy
-- **Cultural Elements**: Incorporate bardic traditions, Sanskrit/Tamil/Prakrit languages, ritual practices, artistic schools
-- **Maintain Elements**: Preserve core emotional arcs while adapting conflicts to fit ancient political/economic systems
-- **Creative Constraints**: Ground technology in historical realism, avoid anachronisms, respect cultural authenticity
-
-## Changes Made
-- OMDb integration now feeds directly into the transformation pipeline. After you select a movie, its full plot is used as `source_story`, the orchestrator runs, and the output is saved.
-- Genre selection added before reimagining. You choose from a curated list; the chosen genre is applied to `creative_constraints` to guide tone, pacing, and conventions.
-- **Language selection prompt**: Before transformation, you can select from 30 languages (English, Spanish, French, German, Italian, Portuguese, Russian, Chinese, Japanese, Korean, Arabic, Hindi, Bengali, Tamil, Telugu, Marathi, Gujarati, Kannada, Malayalam, Punjabi, Turkish, Dutch, Swedish, Polish, Greek, Hebrew, Thai, Vietnamese, Indonesian). Defaults to English if skipped.
-- **Web Search Integration**: The `--movie-title-web` flow now uses `gpt-4o-mini-search-preview-2025-03-11` via `src/web_search.py` module with simplified search that returns complete movie information (plot, cast, release details, streaming) without complex parsing.
-- Output saving improved. If `--output` is not specified, files are auto-named like `output/reimagined_<title>.md`. Markdown headers include computed length and consistency score.
-- Console preview support. Use `--preview-file` to render Markdown or text outputs; `--preview` shows predefined story summaries.
-- README updated for `uv` workflows, agent roles, and OMDb API key setup instructions.
-- Multiple movie lookup flows available: OMDb (fast, reliable), GPT-based (deep summaries), and Web Search (current data with indexed selection).
+<!-- Changelog removed to keep README focused on usage and API -->
 
 ### API Server
 
@@ -510,105 +485,13 @@ Different agents with different temperatures optimize for different goals:
 - **Chain of thought**: Sequential refinement through pipeline
 - **Context preservation**: Rich context passed between agents
 
-### Why Not Subtitles?
-Subtitles capture dialogue but miss:
-- Narrative structure and pacing
-- Character arcs and motivations
-- Thematic elements and symbols
-- Visual storytelling
+<!-- Subtitles rationale removed for brevity -->
 
-Our approach uses plot summaries that capture these essential elements.
+<!-- Evaluation criteria and ownership & innovation removed for a professional, focused README -->
 
-## Evaluation Criteria Addressed
+<!-- Challenges & mitigations removed -->
 
-### System Thinking
-- Abstracted movie/story transformation into reusable agent pipeline
-- Each agent handles one concern
-- Orchestrator manages coordination
-- Knowledge base provides reusable narrative patterns
-
-### Technical Execution
-- Clean, modular code
-- Type-safe with Pydantic models
-- Scalable microservice architecture
-- RESTful API design
-
-### AI Engineering
-- Temperature tuning per agent role
-- Structured output with JSON schema
-- Few-shot examples in knowledge base
-- Chain-of-thought through pipeline
-
-### Problem Decomposition
-- 6 specialized agents
-- Clear interfaces between components
-- Separation of analysis, generation, validation
-- Reusable knowledge base
-
-### Bias Toward Action
-- Working demo with multiple input methods (OMDb, GPT, web search, predefined stories)
-- Multiple interfaces (CLI, API)
-- Predefined classic stories for quick testing
-- Complete end-to-end system
-
-### Ownership & Innovation
-**Clever addition**: Quality Assurance Agent that:
-- Validates thematic fidelity automatically
-- Provides quantitative consistency scores
-CLI now prints a concise QA summary after each transformation (Overall, Thematic Fidelity, Character Consistency, World Coherence) with robust defaults.
-- Identifies strengths and weaknesses
-- Enables iterative refinement
-
-This addition wasn't in the original requirements but adds:
-- Objective quality measurement
-- Debugging capability
-- Trust in transformations
-- Foundation for auto-improvement
-
-## Challenges & Mitigations
-
-### Challenge: Maintaining Thematic Fidelity
-**Solution**: Dedicated analysis agent extracts core themes before transformation. QA agent validates theme preservation.
-
-### Challenge: World Coherence
-**Solution**: World Builder creates comprehensive rule set. Plot Transformer must respect these constraints.
-
-### Challenge: Creative vs. Faithful
-**Solution**: Separate agents for analysis (faithful) and creation (creative) with different temperatures.
-
-### Challenge: Consistency Across Long Narratives
-**Solution**: Structured data models passed between agents maintain context. QA agent catches inconsistencies.
-
-### Challenge: Reproducibility
-**Solution**: Temperature settings, structured prompts, and JSON schemas ensure consistent outputs.
-
-## Future Improvements
-
-### Scale to Full Product
-1. **Iterative Refinement**: Loop feedback from QA agent back to Story Writer
-2. **User Feedback Loop**: Learn from human preferences
-3. **Multi-Model Support**: Compare GPT-4, Claude, Gemini outputs
-4. **Caching Layer**: Redis for intermediate results
-5. **Batch Processing**: Transform multiple stories in parallel
-6. **Web Interface**: Interactive UI for exploration
-7. **Version Control**: Track transformation history
-8. **A/B Testing**: Compare transformation strategies
-
-### Enhanced Features
-- Character dialogue generation
-- Scene-by-scene breakdown
-- Multiple ending variations
-- Interactive story branching
-- Visual style suggestions
-- Soundtrack recommendations
-
-### Production Readiness
-- Authentication & authorization
-- Rate limiting
-- Monitoring & observability
-- Error recovery
-- Model fine-tuning
-- Cost optimization
+<!-- Future improvements removed -->
 
 ## Example Transformations
 
