@@ -8,8 +8,6 @@
 [![CI](https://img.shields.io/badge/CI-ready-success?style=flat-square)]()
 </div>
 
-**Demo:** Click to preview a sample transformation video
-
 [▶️ Demo1 – KGF Chapter 1 reimagined into Vedic Era (English)](Demo/Demo1-KGF_Chapter1-VedicEra_English.mov)
 
 <div align="center">
