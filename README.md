@@ -5,7 +5,6 @@
 [![GitHub Stars](https://img.shields.io/github/stars/negativenagesh/Reimagine-movies?style=flat-square)](https://github.com/negativenagesh/Reimagine-movies/stargazers)
 [![License](https://img.shields.io/github/license/negativenagesh/Reimagine-movies?style=flat-square)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-blue?style=flat-square)](pyproject.toml)
-[![CI](https://img.shields.io/badge/CI-ready-success?style=flat-square)]()
 </div>
 
 AI-powered narrative transformation using a multi-agent microservice architecture. Reimagine movies into entirely different worlds while preserving their core essence. The system can also transform predefined classic stories from the data folder. Using specialized multi-agents, it systematically transforms narratives across contexts. Each agent handles a specific aspect of the transformation process, working together through a central orchestrator.
