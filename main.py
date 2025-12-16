@@ -373,7 +373,7 @@ def main():
             
             console.print("[bold]Search Results:[/bold]")
             for idx, item in enumerate(results, 1):
-                console.print(f"  {idx}. {item.get('Title')} ({item.get('Year')}) — {item.get('imdbID')}")
+                console.print(f"  {idx}. {item.get('Title')} ({item.get('Year')}) — {item.get('imdbID')}, Poster: {item.get('Poster')}")
 
             
             class SimpleSelector(BaseAgent):
