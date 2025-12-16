@@ -179,6 +179,9 @@ uv run main.py \
 ```bash
 uv run main.py --list-stories
 ```
+
+#### Transform a Custom Story
+```bash
 uv run main.py \
   --custom-story "Your story text here..." \
   --target-world "Description of target world" \
