@@ -35,12 +35,55 @@ class TransformationOrchestrator:
         self.console.print(f"  Theme: {original_analysis['core_theme']}")
         self.console.print(f"  Moral: {original_analysis['moral_lesson']}")
         self.console.print(f"  Emotional Journey: {original_analysis['emotional_journey']}")
-        self.console.print(f"  Characters: {len(original_analysis['characters'])} identified")
+        
+        self.console.print(f"\n  [bold cyan]Primary Conflict:[/bold cyan] {original_analysis.get('primary_conflict', 'N/A')}")
+        if original_analysis.get('secondary_conflicts'):
+            self.console.print(f"  [bold cyan]Secondary Conflicts:[/bold cyan]")
+            for i, conflict in enumerate(original_analysis['secondary_conflicts'], 1):
+                self.console.print(f"    {i}. {conflict}")
+        
+        if original_analysis.get('key_symbols'):
+            self.console.print(f"\n  [bold cyan]Key Symbols:[/bold cyan]")
+            for i, symbol in enumerate(original_analysis['key_symbols'], 1):
+                self.console.print(f"    {i}. {symbol}")
+        
+        if original_analysis.get('narrative_structure'):
+            self.console.print(f"\n  [bold cyan]Narrative Structure:[/bold cyan]")
+            ns = original_analysis['narrative_structure']
+            
+            self.console.print(f"    [yellow]Inciting Incident:[/yellow] {ns.get('inciting_incident', 'N/A')}")
+            
+            self.console.print(f"\n    [yellow]Act One (Setup):[/yellow]")
+            for point in ns.get('act_one', []):
+                self.console.print(f"      • {point}")
+            
+            self.console.print(f"\n    [yellow]Act Two (Complications):[/yellow]")
+            for point in ns.get('act_two', []):
+                self.console.print(f"      • {point}")
+            
+            self.console.print(f"\n    [yellow]Midpoint:[/yellow] {ns.get('midpoint', 'N/A')}")
+            
+            self.console.print(f"\n    [yellow]Act Three (Resolution):[/yellow]")
+            for point in ns.get('act_three', []):
+                self.console.print(f"      • {point}")
+            
+            self.console.print(f"\n    [yellow]Climax:[/yellow] {ns.get('climax', 'N/A')}")
+            self.console.print(f"    [yellow]Resolution:[/yellow] {ns.get('resolution', 'N/A')}")
+        
+        self.console.print(f"\n  [bold cyan]Characters:[/bold cyan] {len(original_analysis['characters'])} identified")
         for i, char in enumerate(original_analysis['characters'], 1):
-            self.console.print(f"    {i}. {char['name']} ({char['archetype']})")
-        self.console.print(f"  Plot Points: {len(original_analysis['plot_points'])} identified")
+            self.console.print(f"\n    {i}. [bold]{char['name']}[/bold] ({char['archetype']})")
+            if char.get('core_traits'):
+                self.console.print(f"       Traits: {', '.join(char['core_traits'])}")
+            if char.get('motivations'):
+                self.console.print(f"       Motivations: {', '.join(char['motivations'])}")
+            if char.get('arc_description'):
+                self.console.print(f"       Arc: {char['arc_description']}")
+        
+        self.console.print(f"\n  [bold cyan]Plot Points:[/bold cyan] {len(original_analysis['plot_points'])} identified")
         for point in original_analysis['plot_points']:
             self.console.print(f"    {point['sequence']}. {point['original_event']}")
+            self.console.print(f"       Emotional Weight: {point.get('emotional_weight', 'N/A')} | Stakes: {point.get('stakes', 'N/A')}")
         self.console.print()
         
         self.console.print("[cyan]Building alternate world...[/cyan]")
@@ -70,12 +113,36 @@ class TransformationOrchestrator:
         transformed_characters = character_result["transformed_characters"]
         
         self.console.print("[bold]Character Mapping Agent Output:[/bold]")
-        for char in transformed_characters:
-            orig = char.get('name', 'N/A')
-            new = char.get('transformed_name', 'N/A')
-            role = char.get('transformed_role', 'N/A')
-            self.console.print(f"  - {orig} -> {new}")
-            self.console.print(f"    Role: {role}")
+        for i, char in enumerate(transformed_characters, 1):
+            self.console.print(f"\n[bold cyan]Character {i}:[/bold cyan]")
+            
+            self.console.print(f"\n  [yellow]Original Character:[/yellow]")
+            self.console.print(f"    - Name: {char.get('name', 'N/A')}")
+            self.console.print(f"    - Archetype: {char.get('archetype', 'N/A')}")
+            
+            if char.get('core_traits'):
+                self.console.print(f"    - Core Traits: {', '.join(char['core_traits'])}")
+            else:
+                self.console.print(f"    - Core Traits: N/A")
+            
+            if char.get('motivations'):
+                self.console.print(f"    - Motivations: {', '.join(char['motivations'])}")
+            else:
+                self.console.print(f"    - Motivations: N/A")
+            
+            if char.get('arc_description'):
+                self.console.print(f"    - Arc: {char['arc_description']}")
+            
+            self.console.print(f"\n  [yellow]New World Context:[/yellow]")
+            self.console.print(f"    - Setting: {transformed_world.get('name', 'N/A')} ({transformed_world.get('era', 'N/A')})")
+            self.console.print(f"    - Technology: {transformed_world.get('technology_level', 'N/A')}")
+            self.console.print(f"    - Social Structure: {transformed_world.get('social_structure', 'N/A')}")
+            self.console.print(f"    - Power Dynamics: {transformed_world.get('power_dynamics', 'N/A')}")
+            
+            self.console.print(f"\n  [green]Transformed Version:[/green]")
+            self.console.print(f"    - New Name: {char.get('transformed_name', 'N/A')}")
+            self.console.print(f"    - New Role: {char.get('transformed_role', 'N/A')}")
+        
         self.console.print()
         
         self.console.print("[cyan]Transforming plot points...[/cyan]")

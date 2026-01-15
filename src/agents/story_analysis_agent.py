@@ -69,7 +69,7 @@ Provide a complete structural analysis in valid JSON format with these exact key
 
 Make sure to include at least 8-10 major plot points that capture the story's progression."""
         
-        analysis_data = self.call_llm_json(prompt, max_tokens=6000)
+        analysis_data = self.call_llm_json(prompt, max_tokens=16000)
         
         return {
             "analysis": analysis_data,

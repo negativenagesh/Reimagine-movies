@@ -1,7 +1,6 @@
 from typing import Dict, Any
 from .base import BaseAgent
 
-
 class StoryWriterAgent(BaseAgent):
     def __init__(self):
         super().__init__(name="StoryWriterAgent", model="gpt-4o-mini", temperature=0.9)

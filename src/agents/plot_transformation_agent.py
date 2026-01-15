@@ -1,7 +1,6 @@
 from typing import Dict, Any
 from .base import BaseAgent
 
-
 class PlotTransformationAgent(BaseAgent):
     def __init__(self):
         super().__init__(name="PlotTransformationAgent", temperature=0.7)
